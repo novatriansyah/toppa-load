@@ -51,3 +51,4 @@ Catat hasil kritik yang Anda terima di tabel ini agar enam bulan ke depan alasan
 | 2026-11-01 | Audit Pra-Kick-Off Internal | `springdoc-openapi` v2.x gagal di Spring Boot 4 karena migrasi Jackson 3; Testcontainers 2.0 mengganti nama artefak `postgresql` menjadi `testcontainers-postgresql`. | **TERIMA** | Diverifikasi terhadap dokumentasi resmi Spring Boot 4.1.0 & Testcontainers 2.0.3; langsung dikunci di spesifikasi & rencana Minggu 1. |
 | 2026-11-01 | Audit Pra-Kick-Off Internal | Memasang generator kode jOOQ di Minggu 1 untuk 10 tabel berisiko memperlambat setup CI/Docker solo developer dibanding `JdbcClient` Spring Boot 4 + SQL eksplisit teruji Testcontainers. | **TERIMA** | Gunakan JPA untuk CRUD + `JdbcClient` native SQL untuk query `generate_series` kapasitas di Fase 1 (ADR-0002); jOOQ tetap bisa ditambahkan bila query dinamis Fase 3 membutuhkannya. |
 | *Isi nanti* | *Mis. Claude / GPT / Supervisor* | *...* | *...* | *...* |
+

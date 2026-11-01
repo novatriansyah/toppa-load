@@ -88,3 +88,4 @@ toppa-load/
 
 - **Dilarang keras** menyimpan data karyawan asli (nama, email perusahaan, jadwal cuti nyata) di dalam kode sumber, *seed* migrasi, maupun *fixture* pengujian. Seluruh pengujian menggunakan data sintetis.
 - Jika kode dipublikasikan sebagai portfolio publik, pastikan persetujuan tertulis perusahaan telah diperoleh atau publikasikan dari repositori *demo generik* yang terpisah dari instansi internal.
+

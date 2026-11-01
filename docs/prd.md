@@ -205,3 +205,4 @@ Seluruh 10 skenario berikut wajib lulus di unit/integration test sebelum rilis F
    - Target ketersediaan (*SLA internal*): Jam kerja Senin–Jumat `08.00–18.00 WIB`.
    - RPO (*Recovery Point Objective*): `<= 24 jam` (backup dump PostgreSQL harian otomatis ke S3 eksternal + retensi 14–30 hari).
    - RTO (*Recovery Time Objective*): `<= 2 jam` (prosedur restore terdokumentasi di [`docs/runbook.md`](runbook.md) dan diuji ke *staging* sejak Minggu 1 serta setiap kuartal).
+

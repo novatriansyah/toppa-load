@@ -24,3 +24,4 @@ Aplikasi ini mengelola data beban kerja dan cuti karyawan internal dan di-host d
 ## Konsekuensi & Trade-offs
 - **Positif:** Keamanan tinggi dari hari pertama (memanfaatkan 2FA bawaan Google/Microsoft kantor), pencabutan akses instan, bebas risiko token bocor di `localStorage`.
 - **Negatif:** Saat aplikasi tunggal direstart untuk deploy (±5–10 detik), sesi di memori JVM dapat meminta klik satu tombol *"Masuk kembali dengan SSO"* (dapat ditambah Spring Session JDBC di tabel Postgres bila dirasa mengganggu, namun untuk 6 pengguna sangat jarang diperlukan).
+

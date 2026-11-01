@@ -225,3 +225,4 @@ Expected: PASS dan chunk awal ringan (`< 120 kB` gzipped)
 git add web/
 git commit -m "feat(web): build primary Person x Week Heatmap, 1-click Allocation drawer, and Leave/Holiday UI"
 ```
+

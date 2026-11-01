@@ -402,3 +402,4 @@ Sesuai pedoman ukuran rencana agar setiap rencana menghasilkan perangkat lunak y
 2. **[`2026-11-01-f1-02-auth-users-projects-tasks.md`](../plans/2026-11-01-f1-02-auth-users-projects-tasks.md)** *(Minggu 2–3)* — Audit Log JSONB, SSO OIDC + Email Allowlist + RBAC, Konfigurasi Jam/Hari Kerja User, CRUD Proyek & Task Cepat.
 3. **[`2026-11-01-f1-03-allocations-leaves-capacity-heatmap.md`](../plans/2026-11-01-f1-03-allocations-leaves-capacity-heatmap.md)** *(Minggu 4–5)* — Impor Libur Nasional, Cuti Penuh/Setengah Hari, Alokasi & Deteksi Overlap, Mesin SQL `generate_series` (10 Golden Test Cases), dan Layar Utama Heatmap Orang × Minggu.
 4. **[`2026-11-01-f1-04-notifications-and-hardening.md`](../plans/2026-11-01-f1-04-notifications-and-hardening.md)** *(Minggu 6–7)* — Pengaturan Ambang Utilisasi, Notifikasi In-App & Email Terjadwal Anti-Dobel, Impor CSV Onboarding, Hardening OWASP, dan Playwright E2E Suite.
+

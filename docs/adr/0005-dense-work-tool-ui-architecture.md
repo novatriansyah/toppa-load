@@ -30,3 +30,4 @@ Rencana Bagian 4 menekankan bahwa Toppa Load harus terasa seperti **alat kerja p
 ## Konsekuensi & Trade-offs
 - **Positif:** Bundle awal layar Heatmap sangat kecil dan instan, identitas visual tajam serta fungsional untuk portfolio maupun pemakaian harian, dan siap dwibahasa tanpa merombak komponen di Fase 3.
 - **Negatif:** Membutuhkan disiplin menjaga konsistensi token CSS kustom di awal Minggu 1–2 (diselesaikan dengan mendefinisikan `tokens.css` sekali di fondasi Minggu 1).
+

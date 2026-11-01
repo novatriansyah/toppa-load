@@ -33,3 +33,4 @@ Memulai dengan Spring Boot 3.5 (dukungan OSS berakhir 30 Juni 2026) atau Spring 
 ## Konsekuensi & Trade-offs
 - **Positif:** Kecepatan pengembangan tinggi, ekosistem keamanan & penjadwalan sangat matang, batas modul terjaga rapi tanpa kompleksitas jaringan microservice, dan sangat kuat untuk nilai portfolio enterprise Java 2026+.
 - **Negatif:** Jejak memori JVM lebih besar dibanding Go; dimitigasi dengan membatasi heap `-Xmx512m` pada VPS 4 GB RAM.
+

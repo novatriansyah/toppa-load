@@ -25,3 +25,4 @@ Spring Data JPA sangat produktif untuk CRUD entitas transaksional (`User`, `Proj
 ## Konsekuensi & Trade-offs
 - **Positif:** Build Docker multi-stage tetap cepat dan sederhana (tanpa perlu menyalakan Postgres sementara di tengah `docker build` hanya untuk jOOQ codegen), sementara query kapasitas tetap 100% eksplisit dan teruji terhadap Postgres nyata lewat Testcontainers di CI.
 - **Negatif:** Perubahan nama kolom SQL tidak tertangkap saat kompilasi Java, sehingga **wajib** ditangkap oleh suite integration test Testcontainers pada setiap push.
+

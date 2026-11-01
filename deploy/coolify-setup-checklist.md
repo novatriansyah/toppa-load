@@ -79,3 +79,4 @@ Panduan eksekusi infrastruktur Minggu 1 agar satu VPS **2 vCPU / 4 GB RAM** siap
 
 - [ ] Tambahkan Resource *One-Click Service* **Uptime Kuma** di Coolify (`status.<domain-anda>`), batasi memori kontainer `256m`.
 - [ ] Tambahkan 2 monitor HTTP(s) ke `https://workload.<domain-anda>/actuator/health` dan `https://staging-workload.<domain-anda>/actuator/health` (interval 60 detik) dengan notifikasi ke email/Telegram Anda.
+

@@ -83,3 +83,4 @@ Karena seluruh migrasi database wajib mematuhi pola **Expand-Contract** (migrasi
 | Login SSO gagal `redirect_uri_mismatch` | Cek `SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_*` & header proxy | Pastikan `server.forward-headers-strategy=framework` aktif agar Spring membaca `X-Forwarded-Proto: https` dari Coolify |
 | Email notifikasi tidak terkirim | Cek log `NotificationScheduler` & kuota harian Resend/Brevo | Periksa variabel `SPRING_MAIL_*` di Coolify; baris gagal dapat dikirim ulang setelah SMTP pulih karena tabel notifikasi mencatat status kirim |
 | Disk VPS penuh (`> 85%`) | Jalankan `docker system df` di VPS | Bersihkan image build lama: `docker image prune -af --filter "until=168h"` |
+

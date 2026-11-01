@@ -86,3 +86,4 @@ Isi tabel ini sekali saja di **Minggu 1** bersama kedua supervisor sebagai pemba
   - Konfirmasi pemisahan alokasi `Confirmed` vs `Tentative`.
 - **Menit 30–50:** Review *wireframe low-fidelity* 4 layar utama (Heatmap Orang × Minggu, Daftar/Detail Proyek & Task, Drawer Form Alokasi, Kalender Cuti & Libur).
 - **Menit 50–60:** Kunci keputusan daftar email 6 pengguna + jadwal sesi demo rutin **30 menit tiap akhir minggu**.
+

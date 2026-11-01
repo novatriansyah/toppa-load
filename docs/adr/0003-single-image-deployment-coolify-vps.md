@@ -21,3 +21,4 @@ Sebagai solo developer, setiap komponen tambahan di produksi melipatgandakan tit
 ## Konsekuensi & Trade-offs
 - **Positif:** Nol masalah CORS/cookie sesi, satu domain HTTPS tunggal, satu artefak rollback atomik untuk UI + API sekaligus, dan konfigurasi Coolify sangat ringkas.
 - **Negatif:** Perubahan teks kecil di UI tetap memicu build image gabungan (±2–3 menit dengan Docker layer cache). Karena `web/` dan `server/` tetap terpisah di repo, migrasi ke Opsi B kapan pun dibutuhkan tidak memerlukan perombakan kode.
+

@@ -343,3 +343,4 @@ Expected: Kontainer start bersih, Flyway `V1` sukses, tanpa error
 git add .dockerignore deploy/Dockerfile .github/workflows/ci.yml
 git commit -m "ci(deploy): add single-image multi-stage Dockerfile and GitHub Actions CI pipeline"
 ```
+
