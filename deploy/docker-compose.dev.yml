@@ -1,0 +1,32 @@
+name: toppa-load-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: toppa-load-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-toppaload}
+      POSTGRES_USER: ${POSTGRES_USER:-toppaload}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-toppaload_dev_local}
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - toppa_pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-toppaload} -d $${POSTGRES_DB:-toppaload}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: toppa-load-mailpit-dev
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP lokal (arahkan SPRING_MAIL_HOST=localhost, SPRING_MAIL_PORT=1025)
+      - "8025:8025" # Web UI kotak masuk uji email: http://localhost:8025
+
+volumes:
+  toppa_pgdata_dev:

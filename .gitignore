@@ -1,0 +1,71 @@
+# ==============================================================================
+# Toppa Load — Git Ignore Rules
+# ==============================================================================
+
+# Secrets & Environment (NEVER commit credentials or real employee data)
+.env
+.env.*
+!.env.example
+deploy/.env
+*.pem
+*.key
+*.p12
+*credentials*.json
+*employee*real*.csv
+*karyawan*.csv
+*karyawan*.xlsx
+
+# Java / Maven / Spring Boot (server/)
+server/target/
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / React / Vite / Playwright (web/)
+node_modules/
+web/dist/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# IDEs & Editors
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.project
+.classpath
+.settings/
+.sts4-cache/
+
+# OS & Temp
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+tmp/
+temp/
+logs/
+*.log
