@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: toppa-load
+  jpa:
+    open-in-view: false
+
+server:
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
