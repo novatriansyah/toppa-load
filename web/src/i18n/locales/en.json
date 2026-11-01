@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "Toppa Load",
+    "subtitle": "Team Capacity & Workload Planning",
+    "version": "v0.1.0",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "timezone": "WIB (Asia/Jakarta)"
+  },
+  "nav": {
+    "workload": "Workload",
+    "projects": "Projects & Tasks",
+    "allocations": "Allocations",
+    "leaves": "Leaves & Holidays",
+    "settings": "Settings"
+  },
+  "status": {
+    "underutilized": "Underutilized",
+    "optimal": "Optimal",
+    "overloaded": "Overloaded",
+    "leaveConflict": "Leave Conflict",
+    "noCapacity": "No Capacity"
+  },
+  "header": {
+    "statusOnline": "System Active",
+    "statusOffline": "Disconnected",
+    "notifications": "Notifications",
+    "profile": "User Profile",
+    "systemInfo": "System Info"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "hours": "hours",
+    "hoursShort": "h",
+    "percentage": "percent"
+  }
+}

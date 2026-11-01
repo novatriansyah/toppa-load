@@ -1,0 +1,98 @@
+import { render, screen, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
+import { describe, it, expect, beforeEach } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+import { AppShell } from '../AppShell';
+import idLocale from '../../i18n/locales/id.json';
+import enLocale from '../../i18n/locales/en.json';
+import i18n from '../../i18n';
+
+function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[] {
+  return Object.entries(obj)
+    .flatMap(([key, value]) => {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return flattenKeys(value as Record<string, unknown>, fullKey);
+      }
+      return [fullKey];
+    })
+    .sort();
+}
+
+describe('AppShell & Localization Parity', () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage('id');
+  });
+
+  it('renders primary work navigation in Indonesian from translation files', () => {
+    render(
+      <MemoryRouter initialEntries={['/beban-kerja']}>
+        <AppShell />
+      </MemoryRouter>
+    );
+    const nav = screen.getByRole('navigation');
+    expect(nav).toHaveTextContent('Beban Kerja');
+    expect(nav).toHaveTextContent('Proyek & Task');
+    expect(nav).toHaveTextContent('Alokasi');
+    expect(nav).toHaveTextContent('Cuti & Libur');
+    expect(nav).toHaveTextContent('Pengaturan');
+  });
+
+  it('renders 5 distinct work navigation links with expected paths', () => {
+    render(
+      <MemoryRouter initialEntries={['/beban-kerja']}>
+        <AppShell />
+      </MemoryRouter>
+    );
+    const nav = screen.getByRole('navigation');
+    const links = nav.querySelectorAll('a');
+    expect(links.length).toBe(5);
+
+    const hrefs = Array.from(links).map((link) => link.getAttribute('href'));
+    expect(hrefs).toEqual(['/beban-kerja', '/proyek', '/alokasi', '/cuti', '/pengaturan']);
+  });
+
+  it('keeps identical top-level and nested translation keys between id.json and en.json', () => {
+    expect(flattenKeys(idLocale)).toEqual(flattenKeys(enLocale));
+  });
+
+  it('updates navigation labels when switching language to English', async () => {
+    const { rerender } = render(
+      <MemoryRouter initialEntries={['/beban-kerja']}>
+        <AppShell />
+      </MemoryRouter>
+    );
+
+    await act(async () => {
+      await i18n.changeLanguage('en');
+    });
+
+    rerender(
+      <MemoryRouter initialEntries={['/beban-kerja']}>
+        <AppShell />
+      </MemoryRouter>
+    );
+
+    const nav = screen.getByRole('navigation');
+    expect(nav).toHaveTextContent('Workload');
+    expect(nav).toHaveTextContent('Projects & Tasks');
+    expect(nav).toHaveTextContent('Allocations');
+    expect(nav).toHaveTextContent('Leaves & Holidays');
+    expect(nav).toHaveTextContent('Settings');
+  });
+
+  it('defines work-tool tokens and utility classes in tokens.css', () => {
+    const tokensPath = path.resolve(__dirname, '../../styles/tokens.css');
+    const tokensContent = fs.readFileSync(tokensPath, 'utf-8');
+
+    expect(tokensContent).toContain('.num-tabular');
+    expect(tokensContent).toContain('font-variant-numeric: tabular-nums');
+    expect(tokensContent).toContain('text-align: right');
+    expect(tokensContent).toContain('.cell-overloaded-pattern');
+    expect(tokensContent).toContain('--space-1: 4px');
+    expect(tokensContent).toContain('--radius-sm: 4px');
+    expect(tokensContent).toContain('--radius-md: 6px');
+    expect(tokensContent).toContain('--border-width: 1px');
+  });
+});

@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "Toppa Load",
+    "subtitle": "Perencanaan Kapasitas & Beban Kerja Tim",
+    "version": "v0.1.0",
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "retry": "Coba lagi",
+    "timezone": "WIB (Asia/Jakarta)"
+  },
+  "nav": {
+    "workload": "Beban Kerja",
+    "projects": "Proyek & Task",
+    "allocations": "Alokasi",
+    "leaves": "Cuti & Libur",
+    "settings": "Pengaturan"
+  },
+  "status": {
+    "underutilized": "Longgar",
+    "optimal": "Optimal",
+    "overloaded": "Kelebihan Beban",
+    "leaveConflict": "Konflik Cuti",
+    "noCapacity": "Tanpa Kapasitas"
+  },
+  "header": {
+    "statusOnline": "Sistem Aktif",
+    "statusOffline": "Terputus",
+    "notifications": "Notifikasi",
+    "profile": "Profil Pengguna",
+    "systemInfo": "Informasi Sistem"
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Ubah",
+    "close": "Tutup",
+    "hours": "jam",
+    "hoursShort": "j",
+    "percentage": "persen"
+  }
+}
