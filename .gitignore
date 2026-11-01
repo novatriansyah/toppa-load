@@ -70,3 +70,6 @@ temp/
 logs/
 *.log
 
+# Superpowers execution scratch
+.superpowers/
+
