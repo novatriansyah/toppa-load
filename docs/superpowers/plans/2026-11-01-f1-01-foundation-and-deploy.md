@@ -59,7 +59,7 @@
   - `com.toppaload.ToppaLoadApplication`
   - `com.toppaload.shared.WibClock` (`public static final ZoneId WIB = ZoneId.of("Asia/Jakarta")`; `Instant nowUtc()`; `LocalDate todayWib()`)
 
-- [ ] **Step 1: Tulis konfigurasi `server/pom.xml`, Maven Wrapper, dan failing unit test `ModularityTests` serta `WibClockTest`**
+- [x] **Step 1: Tulis konfigurasi `server/pom.xml`, Maven Wrapper, dan failing unit test `ModularityTests` serta `WibClockTest`**
 
 Konfigurasikan `server/pom.xml` dengan parent `org.springframework.boot:spring-boot-starter-parent:4.1.0`, `<java.version>25</java.version>`, BOM `org.springframework.modulith:spring-modulith-bom:2.1.0`, serta dependency `spring-boot-starter-webmvc`, `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `spring-boot-starter-actuator`, `spring-boot-starter-flyway` (atau `flyway-core` + `flyway-database-postgresql`), `postgresql`, `springdoc-openapi-starter-webmvc-ui:3.1.1`, dan scope test `spring-boot-starter-test`, `spring-boot-testcontainers`, `spring-modulith-starter-test`, `org.testcontainers:testcontainers-junit-jupiter`, `org.testcontainers:testcontainers-postgresql`.
 
@@ -83,21 +83,21 @@ class ModularityTests {
 }
 ```
 
-- [ ] **Step 2: Jalankan test untuk memastikan gagal kompilasi karena kelas belum ada**
+- [x] **Step 2: Jalankan test untuk memastikan gagal kompilasi karena kelas belum ada**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=WibClockTest,ModularityTests`
 Expected: FAIL (`cannot find symbol: class WibClock` / `ToppaLoadApplication`)
 
-- [ ] **Step 3: Implementasikan `ToppaLoadApplication`, `WibClock`, package-info `@ApplicationModule` untuk `shared`, dan `application.yml`**
+- [x] **Step 3: Implementasikan `ToppaLoadApplication`, `WibClock`, package-info `@ApplicationModule` untuk `shared`, dan `application.yml`**
 
 Buat `@SpringBootApplication public class ToppaLoadApplication`, bean `@Component public class WibClock` dengan konstruktor default `Clock.systemUTC()` dan konstruktor `WibClock(Clock clock)`, serta `application.yml` yang mengekspos `/actuator/health` dan `server.forward-headers-strategy: framework`.
 
-- [ ] **Step 4: Jalankan test untuk memverifikasi lulus**
+- [x] **Step 4: Jalankan test untuk memverifikasi lulus**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=WibClockTest,ModularityTests`
 Expected: PASS (`Tests run: 2, Failures: 0`)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add server/
@@ -119,7 +119,7 @@ git commit -m "build(server): bootstrap Spring Boot 4.1.0 Java 25 Modulith and W
   - `com.toppaload.TestcontainersConfiguration` (`@TestConfiguration` dengan `@Bean @ServiceConnection PostgreSQLContainer<?> postgresContainer()` memakai image `postgres:17-alpine`)
   - Skema PostgreSQL 9 tabel Fase 1 (`users`, `system_settings`, `projects`, `tasks`, `allocations`, `holidays`, `leaves`, `notifications`, `audit_logs`) beserta baris seed `INSERT INTO system_settings (id, underutilized_threshold_pct, overloaded_threshold_pct, work_timezone) VALUES (1, 60.0, 100.0, 'Asia/Jakarta')`
 
-- [ ] **Step 1: Tulis failing integration test `FlywayBaselineMigrationIT`**
+- [x] **Step 1: Tulis failing integration test `FlywayBaselineMigrationIT`**
 
 ```java
 @SpringBootTest
@@ -149,21 +149,21 @@ class FlywayBaselineMigrationIT {
 }
 ```
 
-- [ ] **Step 2: Jalankan integration test untuk memastikan gagal karena tabel belum ada**
+- [x] **Step 2: Jalankan integration test untuk memastikan gagal karena tabel belum ada**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=FlywayBaselineMigrationIT`
 Expected: FAIL (`relation "system_settings" does not exist`)
 
-- [ ] **Step 3: Tulis `V1__init_phase1_schema.sql` persis sesuai DDL Bagian 3 Spesifikasi Desain beserta baris awal `system_settings`**
+- [x] **Step 3: Tulis `V1__init_phase1_schema.sql` persis sesuai DDL Bagian 3 Spesifikasi Desain beserta baris awal `system_settings`**
 
 Pastikan `pgcrypto` / `gen_random_uuid()` tersedia di PostgreSQL 17 dan seluruh constraint `CHECK` serta partial index dibuat.
 
-- [ ] **Step 4: Jalankan test untuk memverifikasi migrasi lulus terhadap PostgreSQL 17 nyata**
+- [x] **Step 4: Jalankan test untuk memverifikasi migrasi lulus terhadap PostgreSQL 17 nyata**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=FlywayBaselineMigrationIT`
 Expected: PASS (`Tests run: 2, Failures: 0`)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add server/src/main/resources/db/migration/V1__init_phase1_schema.sql server/src/test/
@@ -187,7 +187,7 @@ git commit -m "feat(db): add Flyway V1 baseline schema and Testcontainers verifi
   - `GET /api/v1/system/info` -> `record SystemInfoResponse(String appName, String version, String workTimezone, LocalDate currentWorkDate)`
   - Fallback SPA GET tanpa titik ekstensi di luar `/api/**`, `/actuator/**`, `/oauth2/**`, `/login/**`, `/v3/api-docs/**`, `/swagger-ui/**` -> forward ke `/index.html`
 
-- [ ] **Step 1: Tulis failing integration test `SpaForwardingIT`**
+- [x] **Step 1: Tulis failing integration test `SpaForwardingIT`**
 
 ```java
 @SpringBootTest
@@ -223,21 +223,21 @@ class SpaForwardingIT {
 }
 ```
 
-- [ ] **Step 2: Jalankan test untuk memverifikasi gagal (`404` pada `/api/v1/system/info` & `/beban-kerja`)**
+- [x] **Step 2: Jalankan test untuk memverifikasi gagal (`404` pada `/api/v1/system/info` & `/beban-kerja`)**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=SpaForwardingIT`
 Expected: FAIL
 
-- [ ] **Step 3: Implementasikan `SystemInfoController`, `SpaForwardingController`, dan `ApiExceptionHandler`**
+- [x] **Step 3: Implementasikan `SystemInfoController`, `SpaForwardingController`, dan `ApiExceptionHandler`**
 
 Gunakan `@RestControllerAdvice` yang mewarisi `ResponseEntityExceptionHandler` agar `NoResourceFoundException` pada prefix `/api/` dikembalikan sebagai `ProblemDetail` Bahasa Indonesia, sementara `SpaForwardingController` hanya mem-forward route aplikasi tanpa ekstensi file ke `/index.html`.
 
-- [ ] **Step 4: Jalankan seluruh test backend**
+- [x] **Step 4: Jalankan seluruh test backend**
 
 Run: `cd server && ./mvnw.cmd test`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add server/
@@ -262,7 +262,7 @@ git commit -m "feat(server): add system info endpoint, ProblemDetail 404, and SP
   - Kelas utilitas `.num-tabular` (`font-variant-numeric: tabular-nums; text-align: right;`) dan pola `.cell-overloaded-pattern` di `tokens.css`
   - Struktur kunci kamus `id.json` & `en.json` yang tervalidasi identik
 
-- [ ] **Step 1: Siapkan `web/package.json` dan tulis failing Vitest `AppShell.test.tsx`**
+- [x] **Step 1: Siapkan `web/package.json` dan tulis failing Vitest `AppShell.test.tsx`**
 
 Pasang `react`, `react-dom`, `react-router`, `@tanstack/react-query`, `i18next`, `react-i18next`, `tailwindcss`, `@tailwindcss/vite`, serta devDependencies `typescript`, `vite`, `@vitejs/plugin-react`, `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`.
 
@@ -283,21 +283,21 @@ describe('AppShell & Localization Parity', () => {
 });
 ```
 
-- [ ] **Step 2: Jalankan Vitest untuk memastikan gagal**
+- [x] **Step 2: Jalankan Vitest untuk memastikan gagal**
 
 Run: `cd web && npm.cmd test -- --run`
 Expected: FAIL (`Cannot find module '../AppShell'`)
 
-- [ ] **Step 3: Implementasikan `tokens.css`, `i18n`, `AppShell.tsx`, `router.tsx`, dan konfigurasi proxy Vite**
+- [x] **Step 3: Implementasikan `tokens.css`, `i18n`, `AppShell.tsx`, `router.tsx`, dan konfigurasi proxy Vite**
 
 Pastikan `tokens.css` menerapkan skala spasi 4px, radius 4px/6px, border tipis 1px, kontras WCAG AA, `.num-tabular`, serta `vite.config.ts` mem-proxy `/api`, `/oauth2`, `/login`, dan `/actuator` ke `http://localhost:8080`.
 
-- [ ] **Step 4: Jalankan test & production build frontend**
+- [x] **Step 4: Jalankan test & production build frontend**
 
 Run: `cd web && npm.cmd test -- --run && npm.cmd run build`
 Expected: PASS dan folder `web/dist` terbentuk tanpa warning TypeScript
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add web/
@@ -319,25 +319,25 @@ git commit -m "feat(web): scaffold React 19 Vite app shell, work-tool tokens, an
   - Image Docker tunggal di port `8080` dengan `HEALTHCHECK` ke `http://localhost:8080/actuator/health`
   - Workflow GitHub Actions `ci.yml` yang menjalankan `web` (typecheck + Vitest + build), `server` (`./mvnw verify` dengan Testcontainers PostgreSQL 17), `docker build` smoke check, serta memicu `COOLIFY_STAGING_WEBHOOK_URL` hanya saat push ke `main` lulus hijau
 
-- [ ] **Step 1: Tulis `.dockerignore` dan `deploy/Dockerfile` 3-stage (`node:24-alpine` -> `eclipse-temurin:25-jdk` -> `eclipse-temurin:25-jre` user non-root)**
+- [x] **Step 1: Tulis `.dockerignore` dan `deploy/Dockerfile` 3-stage (`node:24-alpine` -> `eclipse-temurin:25-jdk` -> `eclipse-temurin:25-jre` user non-root)**
 
 Salin hasil `web/dist` dari Stage 1 ke `server/src/main/resources/static/` pada Stage 2 sebelum menjalankan `./mvnw -B package -DskipTests`, dan set `ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=50.0 -Xmx512m -Duser.timezone=UTC"` pada Stage 3.
 
-- [ ] **Step 2: Tulis `.github/workflows/ci.yml` untuk verifikasi penuh PR & auto-trigger webhook Staging Coolify**
+- [x] **Step 2: Tulis `.github/workflows/ci.yml` untuk verifikasi penuh PR & auto-trigger webhook Staging Coolify**
 
 Pastikan job `backend-test` berjalan di `ubuntu-latest` (yang sudah menyertakan Docker untuk Testcontainers), job `frontend-test` menjalankan `npm ci && npm run test -- --run && npm run build`, job `docker-package` memvalidasi `docker build -f deploy/Dockerfile .`, dan job `deploy-staging` memanggil `curl -fsSL -X POST "${{ secrets.COOLIFY_STAGING_WEBHOOK_URL }}"` hanya bila `github.ref == 'refs/heads/main'` dan secret tersedia.
 
-- [ ] **Step 3: Verifikasi build image multi-stage secara lokal**
+- [x] **Step 3: Verifikasi build image multi-stage secara lokal**
 
 Run: `docker build -f deploy/Dockerfile -t toppa-load:local .`
 Expected: Image berhasil dibangun tanpa error dan berisi aset `BOOT-INF/classes/static/index.html`
 
-- [ ] **Step 4: Jalankan smoke test kontainer terhadap PostgreSQL dev**
+- [x] **Step 4: Jalankan smoke test kontainer terhadap PostgreSQL dev**
 
 Run: `docker compose -f deploy/docker-compose.dev.yml up -d && docker run --rm --network host -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/toppaload -e SPRING_DATASOURCE_USERNAME=toppaload -e SPRING_DATASOURCE_PASSWORD=toppaload_dev_local toppa-load:local --spring.main.web-application-type=none` *(atau cek `/actuator/health` -> `200 UP`)*
 Expected: Kontainer start bersih, Flyway `V1` sukses, tanpa error
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .dockerignore deploy/Dockerfile .github/workflows/ci.yml

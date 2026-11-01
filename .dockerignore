@@ -1,0 +1,26 @@
+# Version control & Superpowers planning
+.git/
+.gitignore
+.gitattributes
+.superpowers/
+
+# Documentation & Markdown
+docs/
+*.md
+
+# IDE & OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Build artifacts & dependencies
+**/target/
+**/node_modules/
+**/dist/
+**/.vite/
+
+# Temporary & logs
+tmp/
+*.log
