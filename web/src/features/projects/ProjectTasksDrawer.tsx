@@ -14,6 +14,27 @@ import { TaskKanbanView } from './views/TaskKanbanView';
 import { TaskCalendarView } from './views/TaskCalendarView';
 import { TaskCommentsSection } from './TaskCommentsSection';
 
+interface AssigneeRecommendation {
+  userId: string;
+  fullName: string;
+  email: string;
+  matchScore: number;
+  availableHours: number;
+  currentUtilizationPct: number;
+  projectedUtilizationPct: number;
+  willOverload: boolean;
+  matchingSkills: string[];
+  reason: string;
+}
+
+interface TaskRecommendationResponse {
+  taskId: string;
+  taskTitle: string;
+  requiredSkillsSummary: string;
+  aiEnabled: boolean;
+  recommendations: AssigneeRecommendation[];
+}
+
 export interface ProjectTasksDrawerProps {
   project: {
     id: string;
@@ -113,6 +134,26 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
     queryKey: ['users'],
     queryFn: () => apiClient.get<UserSummary[]>('/api/v1/users'),
     enabled: isOpen,
+  });
+
+  // Fetch AI recommendations when editing a task
+  const { data: aiResponse, isLoading: loadingAi } = useQuery<TaskRecommendationResponse>({
+    queryKey: ['aiRecommendations', editingTask?.id],
+    queryFn: () => {
+      if (!editingTask?.id) {
+        return Promise.resolve({
+          taskId: '',
+          taskTitle: '',
+          requiredSkillsSummary: '',
+          aiEnabled: false,
+          recommendations: [],
+        });
+      }
+      return apiClient.get<TaskRecommendationResponse>(
+        `/api/v1/ai/recommend-assignee?taskId=${editingTask.id}`
+      );
+    },
+    enabled: isOpen && !!editingTask?.id,
   });
 
   // Quick-Add Mutation
@@ -712,6 +753,94 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
                     </option>
                   ))}
                 </select>
+
+                {/* AI Assignee Recommendation Widget */}
+                {aiResponse?.aiEnabled && (
+                  <div className="mt-2 p-2.5 rounded-lg border border-indigo-100 bg-slate-50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-indigo-900 flex items-center gap-1.5">
+                        <span>✨</span>
+                        <span>{t('ai.recommendationsTitle', 'Saran Penugasan Cerdas (AI)')}</span>
+                      </span>
+                      {loadingAi && (
+                        <span className="text-[10px] text-indigo-600 animate-pulse">
+                          {t('ai.analyzing', 'Menganalisis kapasitas & keahlian tim...')}
+                        </span>
+                      )}
+                    </div>
+
+                    {aiResponse.recommendations && aiResponse.recommendations.length > 0 ? (
+                      <div className="space-y-1.5">
+                        {aiResponse.recommendations.slice(0, 3).map((rec) => {
+                          const isSelected = editAssigneeId === rec.userId;
+                          return (
+                            <div
+                              key={rec.userId}
+                              className={`p-2 rounded border transition-colors flex items-start justify-between gap-2 ${
+                                isSelected
+                                  ? 'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300'
+                                  : 'bg-white border-slate-200 hover:border-indigo-200'
+                              }`}
+                            >
+                              <div className="space-y-1 min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-semibold text-slate-900 text-xs">{rec.fullName}</span>
+                                  <span
+                                    className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                                      rec.matchScore >= 70
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : rec.matchScore >= 40
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-slate-100 text-slate-700'
+                                    }`}
+                                  >
+                                    {rec.matchScore}% {t('ai.matchScore', 'Match')}
+                                  </span>
+                                  <span className="text-[10px] font-mono text-slate-500">
+                                    {rec.availableHours}j {t('ai.availableHours', 'luang')}
+                                  </span>
+                                  {rec.willOverload && (
+                                    <span className="text-[10px] font-semibold px-1 py-0.2 bg-rose-100 text-rose-700 rounded">
+                                      ⚠️ {t('ai.overloadRisk', 'Risiko Overload')}
+                                    </span>
+                                  )}
+                                </div>
+                                {rec.matchingSkills && rec.matchingSkills.length > 0 && (
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {rec.matchingSkills.map((sk) => (
+                                      <span
+                                        key={sk}
+                                        className="px-1 py-0.2 bg-indigo-100/70 text-indigo-700 rounded text-[9px] font-medium"
+                                      >
+                                        {sk}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                <p className="text-[10px] text-slate-600 leading-tight">{rec.reason}</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setEditAssigneeId(rec.userId)}
+                                className={`shrink-0 px-2 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-indigo-600 text-white font-semibold'
+                                    : 'bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-800 border border-slate-200'
+                                }`}
+                              >
+                                {isSelected ? `✓ ${t('ai.selected', 'Dipilih')}` : t('ai.selectCandidate', 'Tugaskan')}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : !loadingAi ? (
+                      <p className="text-[10px] text-slate-500 italic">
+                        {t('ai.noSuggestions', 'Belum ada rekomendasi kandidat untuk kriteria task ini.')}
+                      </p>
+                    ) : null}
+                  </div>
+                )}
               </div>
 
               {/* Description */}

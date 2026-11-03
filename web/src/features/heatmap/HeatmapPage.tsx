@@ -13,6 +13,16 @@ import { HeatmapGrid } from './HeatmapGrid';
 import { CellBreakdownDrawer } from './CellBreakdownDrawer';
 import { AllocationFormDrawer } from '../allocations/AllocationFormDrawer';
 
+interface WorkloadBalanceSuggestion {
+  overloadedUserId: string;
+  overloadedUserName: string;
+  currentUtilizationPct: number;
+  suggestedCandidateId: string;
+  suggestedCandidateName: string;
+  candidateAvailableHours: number;
+  suggestionReason: string;
+}
+
 function getInitialDateRange(granularity: GranularityType): { from: string; to: string } {
   const today = new Date();
   const y = today.getFullYear();
@@ -77,6 +87,14 @@ export const HeatmapPage: React.FC = () => {
   const [formInitialUserId, setFormInitialUserId] = useState<string | undefined>();
   const [formInitialStartDate, setFormInitialStartDate] = useState<string | undefined>();
   const [formInitialEndDate, setFormInitialEndDate] = useState<string | undefined>();
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+
+  // Fetch AI Workload Balancing Suggestions
+  const { data: balanceSuggestions } = useQuery<WorkloadBalanceSuggestion[]>({
+    queryKey: ['aiBalanceSuggestions'],
+    queryFn: () => apiClient.get<WorkloadBalanceSuggestion[]>('/api/v1/ai/balance-suggestions'),
+    refetchInterval: 60_000,
+  });
 
   // Fetch heatmap with 30s background polling
   const { data, isLoading, error, refetch, isFetching } = useQuery<HeatmapResponseData>({
@@ -294,6 +312,64 @@ export const HeatmapPage: React.FC = () => {
           </span>
         </label>
       </div>
+
+      {/* AI Workload Balancing Suggestions Banner */}
+      {balanceSuggestions && balanceSuggestions.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-base">✨</span>
+              <span className="text-xs font-semibold text-amber-950">
+                {t('ai.balanceSuggestionsTitle', 'Saran Penyeimbangan Beban Kerja AI')} ({balanceSuggestions.length})
+              </span>
+              <span className="text-[11px] text-amber-700 hidden sm:inline">
+                {t(
+                  'ai.balanceSuggestionsSubtitle',
+                  'Anggota tim dengan beban lebih yang dapat dialihkan ke anggota berkapasitas longgar.'
+                )}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAiSuggestions((v) => !v)}
+              className="text-xs font-medium text-amber-900 hover:text-amber-950 underline cursor-pointer"
+            >
+              {showAiSuggestions ? t('common.close', 'Tutup') : t('common.edit', 'Lihat Rincian')}
+            </button>
+          </div>
+
+          {showAiSuggestions && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-amber-200/60">
+              {balanceSuggestions.map((sug) => (
+                <div
+                  key={`${sug.overloadedUserId}-${sug.suggestedCandidateId}`}
+                  className="p-2.5 rounded bg-white border border-amber-200 text-xs space-y-1 shadow-2xs"
+                >
+                  <div className="flex items-center justify-between font-medium">
+                    <span className="text-rose-700 font-semibold">
+                      {sug.overloadedUserName} ({sug.currentUtilizationPct}% beban)
+                    </span>
+                    <span className="text-slate-400">➔</span>
+                    <span className="text-emerald-700 font-semibold">
+                      {sug.suggestedCandidateName} ({sug.candidateAvailableHours}j luang)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600">{sug.suggestionReason}</p>
+                  <div className="pt-1 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => openNewAllocationDrawer(sug.suggestedCandidateId)}
+                      className="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-medium transition-colors cursor-pointer"
+                    >
+                      + {t('allocations.createButton', 'Tambah Alokasi')}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Heatmap Grid View */}
       {isLoading ? (

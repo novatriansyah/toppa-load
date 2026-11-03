@@ -9,6 +9,7 @@ interface SystemSettings {
   overloadedThresholdPct: number;
   workTimezone: string;
   teamsWebhookUrl?: string | null;
+  aiRecommendationsEnabled?: boolean;
 }
 
 interface CsvImportResult {
@@ -36,6 +37,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
   const [overloaded, setOverloaded] = useState<number>(100);
   const [timezone, setTimezone] = useState<string>('Asia/Jakarta');
   const [teamsWebhookUrl, setTeamsWebhookUrl] = useState<string>('');
+  const [aiEnabled, setAiEnabled] = useState<boolean>(true);
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [settingsMsg, setSettingsMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -45,6 +47,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
       setOverloaded(settings.overloadedThresholdPct);
       setTimezone(settings.workTimezone);
       setTeamsWebhookUrl(settings.teamsWebhookUrl || '');
+      setAiEnabled(settings.aiRecommendationsEnabled !== false);
     }
   }, [settings]);
 
@@ -96,6 +99,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
       overloadedThresholdPct: Number(overloaded),
       workTimezone: timezone,
       teamsWebhookUrl: teamsWebhookUrl.trim() || null,
+      aiRecommendationsEnabled: aiEnabled,
     });
   };
 
@@ -293,6 +297,29 @@ export const ThresholdsAndImportSection: React.FC = () => {
                 'Notifikasi peringatan beban lebih (>100%), batas waktu task H-2, dan pengingat timesheet Jumat sore akan dikirimkan ke channel Teams melalui URL ini.'
               )}
             </p>
+          </div>
+
+          {/* AI Workload Balancing Assistant Toggle */}
+          <div className="pt-2 border-t border-slate-100 flex items-start gap-2.5">
+            <input
+              type="checkbox"
+              id="ai-recommendations-toggle"
+              checked={aiEnabled}
+              onChange={(e) => setAiEnabled(e.target.checked)}
+              disabled={!isAdmin || loadingSettings}
+              className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="ai-recommendations-toggle" className="text-xs select-none cursor-pointer">
+              <span className="font-medium text-slate-800 block">
+                {t('settings.system.aiEnabledLabel', 'Asisten Rekomendasi Kapasitas AI')}
+              </span>
+              <span className="text-[11px] text-slate-500 block">
+                {t(
+                  'settings.system.aiEnabledHelp',
+                  'Aktifkan rekomendasi penugasan cerdas dan saran penyeimbangan beban kerja berbasis keahlian dan ketersediaan waktu luang.'
+                )}
+              </span>
+            </label>
           </div>
 
           {isAdmin && (

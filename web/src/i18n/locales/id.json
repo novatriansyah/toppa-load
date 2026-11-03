@@ -115,6 +115,8 @@
       "saveSuccess": "Pengaturan ambang beban kerja berhasil disimpan.",
       "saveError": "Gagal menyimpan pengaturan ambang beban kerja.",
       "adminOnly": "Hanya Administrator yang dapat mengubah ambang batas sistem.",
+      "aiEnabledLabel": "Asisten Rekomendasi Kapasitas AI",
+      "aiEnabledHelp": "Aktifkan rekomendasi penugasan cerdas dan saran penyeimbangan beban kerja berbasis keahlian dan ketersediaan waktu luang.",
       "importTitle": "Impor Onboarding CSV",
       "importSubtitle": "Impor proyek, task, dan alokasi awal langsung dari spreadsheet organisasi (transaksional)",
       "csvPlaceholder": "Salin dan tempel baris CSV atau unggah berkas .csv di bawah...",
@@ -418,5 +420,22 @@
     "syncTitle": "Sinkronisasi Kalender Outlook & Google",
     "syncSubtitle": "Langganan jadwal proyek & cuti Anda langsung di Microsoft Outlook atau Google Calendar via feed .ics standar RFC 5545.",
     "feedUrlLabel": "Tautan Langganan Kalender Privat (.ics)"
+  },
+  "ai": {
+    "recommendationsTitle": "Saran Penugasan Cerdas (AI)",
+    "recommendationsSubtitle": "Rekomendasi kandidat terbaik berdasarkan keahlian dan kapasitas jam luang.",
+    "matchScore": "Kecocokan",
+    "availableHours": "jam luang",
+    "currentLoad": "Beban saat ini",
+    "projectedLoad": "Proyeksi beban",
+    "overloadRisk": "Risiko Overload",
+    "selectCandidate": "Tugaskan",
+    "selected": "Dipilih",
+    "analyzing": "Menganalisis kapasitas & keahlian tim...",
+    "disabledNotice": "Asisten rekomendasi AI dinonaktifkan di Pengaturan Sistem.",
+    "balanceSuggestionsTitle": "Saran Penyeimbangan Beban Kerja AI",
+    "balanceSuggestionsSubtitle": "Anggota tim dengan beban lebih yang dapat dialihkan ke anggota berkapasitas longgar.",
+    "transferTo": "Dapat dialihkan ke",
+    "noSuggestions": "Beban kerja tim seimbang! Tidak ada saran penyeimbangan saat ini."
   }
 }

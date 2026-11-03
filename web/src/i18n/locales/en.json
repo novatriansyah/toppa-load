@@ -115,6 +115,8 @@
       "saveSuccess": "Workload threshold settings saved successfully.",
       "saveError": "Failed to save workload threshold settings.",
       "adminOnly": "Only Administrators can modify system thresholds.",
+      "aiEnabledLabel": "AI Capacity Recommendation Assistant",
+      "aiEnabledHelp": "Enable smart assignee recommendations and workload balancing suggestions based on skills and available capacity.",
       "importTitle": "Onboarding CSV Importer",
       "importSubtitle": "Import initial projects, tasks, and allocations from organizational spreadsheet (transactional)",
       "csvPlaceholder": "Paste CSV lines or upload a .csv file below...",
@@ -418,5 +420,22 @@
     "syncTitle": "Outlook & Google Calendar Sync",
     "syncSubtitle": "Subscribe to your project and leave schedule directly in Microsoft Outlook or Google Calendar via standard RFC 5545 .ics feed.",
     "feedUrlLabel": "Private Calendar Feed Subscription URL (.ics)"
+  },
+  "ai": {
+    "recommendationsTitle": "Smart Assignee Suggestions (AI)",
+    "recommendationsSubtitle": "Best candidate recommendations based on skill match and available capacity.",
+    "matchScore": "Match",
+    "availableHours": "available hrs",
+    "currentLoad": "Current load",
+    "projectedLoad": "Projected load",
+    "overloadRisk": "Overload Risk",
+    "selectCandidate": "Assign",
+    "selected": "Selected",
+    "analyzing": "Analyzing team capacity & skills...",
+    "disabledNotice": "AI recommendation assistant is disabled in System Settings.",
+    "balanceSuggestionsTitle": "AI Workload Balancing Suggestions",
+    "balanceSuggestionsSubtitle": "Overloaded team members whose allocations can be rebalanced to underutilized peers.",
+    "transferTo": "Can be balanced to",
+    "noSuggestions": "Team workload is balanced! No rebalancing suggestions at this time."
   }
 }
