@@ -28,16 +28,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.toppaload.identity.SystemSettingsReader;
+
 @Service
 @Transactional(readOnly = true)
 class CapacityQueryServiceImpl implements CapacityQueryService {
 
     private final JdbcCapacityQueryRepository queryRepository;
     private final JdbcClient jdbc;
+    private final SystemSettingsReader settingsReader;
 
-    CapacityQueryServiceImpl(JdbcCapacityQueryRepository queryRepository, JdbcClient jdbc) {
+    CapacityQueryServiceImpl(JdbcCapacityQueryRepository queryRepository, JdbcClient jdbc, SystemSettingsReader settingsReader) {
         this.queryRepository = queryRepository;
         this.jdbc = jdbc;
+        this.settingsReader = settingsReader;
     }
 
     @Override
@@ -291,21 +295,15 @@ class CapacityQueryServiceImpl implements CapacityQueryService {
     private record Thresholds(BigDecimal underutilized, BigDecimal overloaded) {}
 
     private Thresholds currentThresholds() {
-        BigDecimal under = CapacityClassifier.DEFAULT_UNDERUTILIZED_THRESHOLD;
-        BigDecimal over = CapacityClassifier.DEFAULT_OVERLOADED_THRESHOLD;
         try {
-            var row = jdbc.sql("SELECT underutilized_threshold_pct, overloaded_threshold_pct FROM system_settings WHERE id = 1")
-                .query((rs, rowNum) -> new Thresholds(
-                    rs.getBigDecimal("underutilized_threshold_pct"),
-                    rs.getBigDecimal("overloaded_threshold_pct")
-                ))
-                .optional();
-            if (row.isPresent()) {
-                under = row.get().underutilized();
-                over = row.get().overloaded();
-            }
-        } catch (Exception ignored) {}
-        return new Thresholds(under, over);
+            var s = settingsReader.currentSettings();
+            return new Thresholds(s.underutilizedThresholdPct(), s.overloadedThresholdPct());
+        } catch (Exception e) {
+            return new Thresholds(
+                    CapacityClassifier.DEFAULT_UNDERUTILIZED_THRESHOLD,
+                    CapacityClassifier.DEFAULT_OVERLOADED_THRESHOLD
+            );
+        }
     }
 
     private List<LocalDate> generatePeriods(LocalDate from, LocalDate to, Granularity granularity) {
