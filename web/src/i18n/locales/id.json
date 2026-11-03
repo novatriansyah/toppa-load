@@ -46,7 +46,11 @@
     "loginWithGoogle": "Masuk dengan Google Workspace",
     "allowlistOnly": "Akses Terbatas",
     "allowlistNotice": "Hanya akun yang terdaftar dalam allowlist yang dapat mengakses sistem ini.",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "pdpNotice": {
+      "title": "Transparansi Data Karyawan (UU PDP)",
+      "body": "Pengolahan data karyawan dalam sistem ini dibatasi untuk keperluan perencanaan kapasitas, manajemen penugasan proyek/task, dan kalender cuti kerja. Data ini bersifat internal dan hanya dapat diakses oleh supervisor serta administrator yang berwenang sesuai Undang-Undang Perlindungan Data Pribadi (UU PDP No. 27/2022)."
+    }
   },
   "days": {
     "mon": "Sen",

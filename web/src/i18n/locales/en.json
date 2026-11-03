@@ -46,7 +46,11 @@
     "loginWithGoogle": "Sign in with Google Workspace",
     "allowlistOnly": "Restricted Access",
     "allowlistNotice": "Only email accounts on the allowlist can access this system.",
-    "logout": "Log out"
+    "logout": "Log out",
+    "pdpNotice": {
+      "title": "Employee Data Transparency (PDP Law)",
+      "body": "Employee data processing in this system is strictly limited to capacity planning, project task allocation, and leave calendars. This data is internal and accessible only to authorized supervisors and administrators in compliance with Personal Data Protection Law (UU PDP No. 27/2022)."
+    }
   },
   "days": {
     "mon": "Mon",

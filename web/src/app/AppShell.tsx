@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { AuthenticatedActor } from '../features/auth/useCurrentUser';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentUser } from '../features/auth/useCurrentUser';
+import { apiClient } from '../shared/api/httpClient';
 
 interface SystemInfo {
   appName?: string;
@@ -74,8 +76,12 @@ function getInitials(name?: string): string {
 
 export const AppShell: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
-  const [currentUser, setCurrentUser] = useState<AuthenticatedActor | null>(null);
+
+  // Consume user reactively from useCurrentUser hook
+  const { data: currentUser } = useCurrentUser();
 
   useEffect(() => {
     let isMounted = true;
@@ -90,21 +96,20 @@ export const AppShell: React.FC = () => {
         // Fallback gracefully in disconnected or mock test environments
       });
 
-    fetch('/api/v1/me')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: AuthenticatedActor | null) => {
-        if (isMounted && data) {
-          setCurrentUser(data);
-        }
-      })
-      .catch(() => {
-        // Fallback gracefully in disconnected or unauthenticated environments
-      });
-
     return () => {
       isMounted = false;
     };
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.post('/logout');
+    } catch {
+      // Graceful fallback if redirect or 204
+    }
+    queryClient.clear();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
@@ -162,15 +167,17 @@ export const AppShell: React.FC = () => {
                 </span>
               )}
             </div>
-            <a
-              href="/logout"
-              className="text-[11px] text-slate-400 hover:text-rose-600 ml-1 px-1 py-0.5 rounded transition-colors"
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-[11px] text-slate-400 hover:text-rose-600 ml-1 px-1 py-0.5 rounded transition-colors cursor-pointer"
               title={t('auth.logout')}
+              aria-label={t('auth.logout')}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-            </a>
+            </button>
           </div>
         </div>
       </header>

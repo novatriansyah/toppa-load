@@ -1,12 +1,28 @@
 import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, beforeEach } from 'vitest';
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import fs from 'node:fs';
 import path from 'node:path';
 import { AppShell } from '../AppShell';
 import idLocale from '../../i18n/locales/id.json';
 import enLocale from '../../i18n/locales/en.json';
 import i18n from '../../i18n';
+
+function renderWithProviders(ui: React.ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      {ui}
+    </QueryClientProvider>
+  );
+}
 
 function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   return Object.entries(obj)
@@ -26,7 +42,7 @@ describe('AppShell & Localization Parity', () => {
   });
 
   it('renders primary work navigation in Indonesian from translation files', () => {
-    render(
+    renderWithProviders(
       <MemoryRouter initialEntries={['/beban-kerja']}>
         <AppShell />
       </MemoryRouter>
@@ -40,7 +56,7 @@ describe('AppShell & Localization Parity', () => {
   });
 
   it('renders 5 distinct work navigation links with expected paths', () => {
-    render(
+    renderWithProviders(
       <MemoryRouter initialEntries={['/beban-kerja']}>
         <AppShell />
       </MemoryRouter>
@@ -58,7 +74,7 @@ describe('AppShell & Localization Parity', () => {
   });
 
   it('updates navigation labels when switching language to English', async () => {
-    const { rerender } = render(
+    const { rerender } = renderWithProviders(
       <MemoryRouter initialEntries={['/beban-kerja']}>
         <AppShell />
       </MemoryRouter>
@@ -69,9 +85,11 @@ describe('AppShell & Localization Parity', () => {
     });
 
     rerender(
-      <MemoryRouter initialEntries={['/beban-kerja']}>
-        <AppShell />
-      </MemoryRouter>
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <MemoryRouter initialEntries={['/beban-kerja']}>
+          <AppShell />
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
     const nav = screen.getByRole('navigation');
