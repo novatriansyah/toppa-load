@@ -33,6 +33,8 @@ replay_pid*
 # Node / React / Vite / Playwright (web/)
 node_modules/
 web/dist/
+web/.vite/
+.vite/
 dist/
 dist-ssr/
 *.local
