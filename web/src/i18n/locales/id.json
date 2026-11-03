@@ -105,7 +105,21 @@
       "thresholdTitle": "Ambang Beban Kerja",
       "thresholdSubtitle": "Standar utilisasi kapasitas untuk matriks beban kerja tim",
       "optimalRange": "Rentang Optimal",
-      "overloadedThreshold": "Kelebihan Beban (Overloaded)"
+      "overloadedThreshold": "Kelebihan Beban (Overloaded)",
+      "underutilizedPctLabel": "Batas Bawah Kurang Beban (%)",
+      "overloadedPctLabel": "Batas Atas Beban Lebih (%)",
+      "timezoneLabel": "Zona Waktu Kerja",
+      "saveSuccess": "Pengaturan ambang beban kerja berhasil disimpan.",
+      "saveError": "Gagal menyimpan pengaturan ambang beban kerja.",
+      "adminOnly": "Hanya Administrator yang dapat mengubah ambang batas sistem.",
+      "importTitle": "Impor Onboarding CSV",
+      "importSubtitle": "Impor proyek, task, dan alokasi awal langsung dari spreadsheet organisasi (transaksional)",
+      "csvPlaceholder": "Salin dan tempel baris CSV atau unggah berkas .csv di bawah...",
+      "chooseFile": "Pilih File CSV",
+      "processImport": "Proses Impor CSV",
+      "importSuccess": "Berhasil mengimpor {{count}} alokasi, {{projects}} proyek, dan {{tasks}} task baru.",
+      "importError": "Gagal mengimpor CSV. Pastikan seluruh email terdaftar pada allowlist.",
+      "formatHint": "Format header kolom wajib: project_code,project_name,task_title,user_email,start_date,end_date,hours_per_day,type"
     }
   },
   "projects": {
@@ -293,5 +307,18 @@
     "importSuccess": "Berhasil memproses hari libur!",
     "importFailed": "Gagal mengimpor hari libur. Periksa format teks.",
     "emptyCsv": "Konten CSV tidak boleh kosong."
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "unreadCount": "{{count}} belum dibaca",
+    "markAllRead": "Tandai Semua Dibaca",
+    "empty": "Belum ada notifikasi baru.",
+    "marking": "Menandai...",
+    "types": {
+      "ALLOCATION_ASSIGNED": "Penugasan Alokasi",
+      "OVERLOAD_WARNING": "Peringatan Beban Lebih",
+      "DEADLINE_APPROACHING": "Batas Waktu Mendekat",
+      "LEAVE_STATUS_CHANGED": "Perubahan Status Cuti"
+    }
   }
 }

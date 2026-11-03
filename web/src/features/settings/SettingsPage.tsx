@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UsersSettingsSection } from './UsersSettingsSection';
+import { ThresholdsAndImportSection } from './ThresholdsAndImportSection';
 
 export const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,22 +25,20 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('users')}
-            className={`px-3 py-1 rounded font-medium transition-colors ${
-              activeTab === 'users'
+            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${activeTab === 'users'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             {t('settings.tabs.users')}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('system')}
-            className={`px-3 py-1 rounded font-medium transition-colors ${
-              activeTab === 'system'
+            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${activeTab === 'system'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             {t('settings.tabs.system')}
           </button>
@@ -50,20 +49,7 @@ export const SettingsPage: React.FC = () => {
       {activeTab === 'users' ? (
         <UsersSettingsSection />
       ) : (
-        <div className="bg-white border border-slate-200 rounded p-4 text-xs text-slate-600 space-y-3">
-          <h3 className="font-semibold text-slate-900">{t('settings.system.thresholdTitle')}</h3>
-          <p className="text-slate-500">{t('settings.system.thresholdSubtitle')}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <div className="p-3 border border-slate-200 rounded bg-slate-50 space-y-1">
-              <span className="text-[11px] font-medium text-slate-500">{t('settings.system.optimalRange')}</span>
-              <div className="text-sm font-semibold text-slate-800 font-mono">80% – 100%</div>
-            </div>
-            <div className="p-3 border border-slate-200 rounded bg-slate-50 space-y-1">
-              <span className="text-[11px] font-medium text-slate-500">{t('settings.system.overloadedThreshold')}</span>
-              <div className="text-sm font-semibold text-rose-600 font-mono">&gt; 100%</div>
-            </div>
-          </div>
-        </div>
+        <ThresholdsAndImportSection />
       )}
     </div>
   );

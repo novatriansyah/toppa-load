@@ -105,7 +105,21 @@
       "thresholdTitle": "Workload Thresholds",
       "thresholdSubtitle": "Capacity utilization standards for the team workload matrix",
       "optimalRange": "Optimal Range",
-      "overloadedThreshold": "Overloaded Threshold"
+      "overloadedThreshold": "Overloaded Threshold",
+      "underutilizedPctLabel": "Underutilized Threshold (%)",
+      "overloadedPctLabel": "Overloaded Threshold (%)",
+      "timezoneLabel": "Working Timezone",
+      "saveSuccess": "Workload threshold settings saved successfully.",
+      "saveError": "Failed to save workload threshold settings.",
+      "adminOnly": "Only Administrators can modify system thresholds.",
+      "importTitle": "Onboarding CSV Importer",
+      "importSubtitle": "Import initial projects, tasks, and allocations from organizational spreadsheet (transactional)",
+      "csvPlaceholder": "Paste CSV lines or upload a .csv file below...",
+      "chooseFile": "Choose CSV File",
+      "processImport": "Process CSV Import",
+      "importSuccess": "Successfully imported {{count}} allocations, {{projects}} projects, and {{tasks}} tasks.",
+      "importError": "Failed to import CSV. Please ensure all user emails exist in the allowlist.",
+      "formatHint": "Required column headers: project_code,project_name,task_title,user_email,start_date,end_date,hours_per_day,type"
     }
   },
   "projects": {
@@ -293,5 +307,18 @@
     "importSuccess": "Holidays processed successfully!",
     "importFailed": "Failed to import holidays. Check text format.",
     "emptyCsv": "CSV content cannot be empty."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unreadCount": "{{count}} unread",
+    "markAllRead": "Mark All as Read",
+    "empty": "No new notifications.",
+    "marking": "Marking...",
+    "types": {
+      "ALLOCATION_ASSIGNED": "Allocation Assigned",
+      "OVERLOAD_WARNING": "Overload Warning",
+      "DEADLINE_APPROACHING": "Deadline Approaching",
+      "LEAVE_STATUS_CHANGED": "Leave Status Changed"
+    }
   }
 }

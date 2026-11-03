@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from '../features/auth/useCurrentUser';
+import { NotificationBellPopover } from '../features/notifications/NotificationBellPopover';
 import { apiClient } from '../shared/api/httpClient';
 
 interface SystemInfo {
@@ -138,16 +139,7 @@ export const AppShell: React.FC = () => {
           </div>
 
           {/* Notification Bell */}
-          <button
-            type="button"
-            className="p-1 rounded text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-            title={t('header.notifications')}
-            aria-label={t('header.notifications')}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-          </button>
+          <NotificationBellPopover />
 
           {/* User Profile Badge */}
           <div
@@ -192,10 +184,9 @@ export const AppShell: React.FC = () => {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center space-x-2.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${
-                    isActive
-                      ? 'bg-slate-100 text-slate-900 border border-slate-300 font-semibold shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                  `flex items-center space-x-2.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${isActive
+                    ? 'bg-slate-100 text-slate-900 border border-slate-300 font-semibold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                   }`
                 }
               >
