@@ -400,5 +400,18 @@
       "status": "Status",
       "overloadWeeks": "Overload Weeks"
     }
+  },
+  "forecasting": {
+    "title": "Capacity What-If Forecasting Simulation",
+    "subtitle": "Plan hypothetical projects and allocations without affecting team production schedules.",
+    "newScenario": "New Simulation Scenario",
+    "calculate": "Run Simulation",
+    "promote": "Promote to Production",
+    "status": {
+      "draft": "Draft",
+      "simulated": "Simulated",
+      "promoted": "Promoted",
+      "archived": "Archived"
+    }
   }
 }

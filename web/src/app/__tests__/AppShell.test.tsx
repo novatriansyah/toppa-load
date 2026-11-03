@@ -53,6 +53,7 @@ describe('AppShell & Localization Parity', () => {
     expect(nav).toHaveTextContent('Timesheet');
     expect(nav).toHaveTextContent('Alokasi');
     expect(nav).toHaveTextContent('Laporan');
+    expect(nav).toHaveTextContent('Simulasi');
     expect(nav).toHaveTextContent('Cuti & Libur');
     expect(nav).toHaveTextContent('Pengaturan');
   });
@@ -73,6 +74,7 @@ describe('AppShell & Localization Parity', () => {
     expect(hrefs).toContain('/timesheet');
     expect(hrefs).toContain('/alokasi');
     expect(hrefs).toContain('/laporan');
+    expect(hrefs).toContain('/simulasi');
     expect(hrefs).toContain('/cuti');
     expect(hrefs).toContain('/pengaturan');
   });

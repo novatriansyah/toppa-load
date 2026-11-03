@@ -400,5 +400,18 @@
       "status": "Status",
       "overloadWeeks": "Minggu Overload"
     }
+  },
+  "forecasting": {
+    "title": "Simulasi Forecasting Kapasitas (What-If)",
+    "subtitle": "Rencanakan proyek dan alokasi tambahan secara hipotetis tanpa mengganggu jadwal kerja riil tim.",
+    "newScenario": "Buat Skenario Simulasi",
+    "calculate": "Hitung Simulasi",
+    "promote": "Promosikan ke Produksi",
+    "status": {
+      "draft": "Draft",
+      "simulated": "Tersimulasi",
+      "promoted": "Dipromosikan",
+      "archived": "Diarsipkan"
+    }
   }
 }
