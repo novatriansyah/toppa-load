@@ -49,11 +49,18 @@ class LeaveService {
     private final LeaveRepository leaveRepository;
     private final UserDirectory userDirectory;
     private final AuditRecorder auditRecorder;
+    private final LeaveBalanceService leaveBalanceService;
 
-    LeaveService(LeaveRepository leaveRepository, UserDirectory userDirectory, AuditRecorder auditRecorder) {
+    LeaveService(
+            LeaveRepository leaveRepository,
+            UserDirectory userDirectory,
+            AuditRecorder auditRecorder,
+            LeaveBalanceService leaveBalanceService
+    ) {
         this.leaveRepository = leaveRepository;
         this.userDirectory = userDirectory;
         this.auditRecorder = auditRecorder;
+        this.leaveBalanceService = leaveBalanceService;
     }
 
     LeaveSummary createLeave(CreateLeaveRequest request) {
@@ -74,18 +81,24 @@ class LeaveService {
         UserSummary targetUser = userDirectory.findActiveById(request.userId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pengguna tidak ditemukan: " + request.userId()));
 
+        String initialStatus = (actor.role() == Role.MEMBER) ? "PENDING" : "APPROVED";
+
         LeaveEntity entity = new LeaveEntity(
                 request.userId(),
                 request.leaveType(),
                 portion,
                 request.startDate(),
                 request.endDate(),
-                "APPROVED",
+                initialStatus,
                 request.notes(),
-                actor.userId()
+                "APPROVED".equals(initialStatus) ? actor.userId() : null
         );
 
-        LeaveEntity saved = leaveRepository.save(entity);
+        LeaveEntity saved = leaveRepository.saveAndFlush(entity);
+
+        if ("APPROVED".equals(initialStatus)) {
+            leaveBalanceService.recalculateBalance(saved.getUserId(), saved.getStartDate().getYear());
+        }
 
         auditRecorder.record(
                 actor.userId(),
@@ -129,6 +142,68 @@ class LeaveService {
         }).toList();
     }
 
+    LeaveSummary approveLeave(UUID id, UUID supervisorId) {
+        LeaveEntity leave = leaveRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cuti tidak ditemukan: " + id));
+
+        UserSummary targetUser = userDirectory.findActiveById(leave.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pengguna tidak ditemukan: " + leave.getUserId()));
+
+        UserSummary supervisor = userDirectory.findActiveById(supervisorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Supervisor tidak ditemukan: " + supervisorId));
+
+        Map<String, Object> before = toSnapshot(leave, targetUser);
+
+        leave.setStatus("APPROVED");
+        leave.setApproverId(supervisorId);
+        LeaveEntity saved = leaveRepository.saveAndFlush(leave);
+
+        leaveBalanceService.recalculateBalance(saved.getUserId(), saved.getStartDate().getYear());
+
+        auditRecorder.record(
+                supervisorId,
+                supervisor.email(),
+                "APPROVE",
+                "LEAVE",
+                saved.getId().toString(),
+                before,
+                toSnapshot(saved, targetUser)
+        );
+
+        return toSummary(saved, targetUser);
+    }
+
+    LeaveSummary rejectLeave(UUID id, UUID supervisorId) {
+        LeaveEntity leave = leaveRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cuti tidak ditemukan: " + id));
+
+        UserSummary targetUser = userDirectory.findActiveById(leave.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pengguna tidak ditemukan: " + leave.getUserId()));
+
+        UserSummary supervisor = userDirectory.findActiveById(supervisorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Supervisor tidak ditemukan: " + supervisorId));
+
+        Map<String, Object> before = toSnapshot(leave, targetUser);
+
+        leave.setStatus("REJECTED");
+        leave.setApproverId(supervisorId);
+        LeaveEntity saved = leaveRepository.saveAndFlush(leave);
+
+        leaveBalanceService.recalculateBalance(saved.getUserId(), saved.getStartDate().getYear());
+
+        auditRecorder.record(
+                supervisorId,
+                supervisor.email(),
+                "REJECT",
+                "LEAVE",
+                saved.getId().toString(),
+                before,
+                toSnapshot(saved, targetUser)
+        );
+
+        return toSummary(saved, targetUser);
+    }
+
     void deleteLeave(UUID id) {
         LeaveEntity entity = leaveRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cuti tidak ditemukan: " + id));
@@ -142,7 +217,11 @@ class LeaveService {
         Map<String, Object> beforeData = toSnapshot(entity, user);
 
         entity.setDeletedAt(Instant.now());
-        leaveRepository.save(entity);
+        leaveRepository.saveAndFlush(entity);
+
+        leaveBalanceService.recalculateBalance(entity.getUserId(), entity.getStartDate().getYear());
+
+        leaveBalanceService.recalculateBalance(entity.getUserId(), entity.getStartDate().getYear());
 
         auditRecorder.record(
                 actor.userId(),
