@@ -9,6 +9,7 @@ public final class TestDatabaseCleaner {
 
     public static void cleanAll(JdbcClient jdbc) {
         jdbc.sql("DELETE FROM audit_logs").update();
+        jdbc.sql("DELETE FROM notifications").update();
         jdbc.sql("DELETE FROM allocations").update();
         jdbc.sql("DELETE FROM leaves").update();
         jdbc.sql("DELETE FROM holidays").update();
@@ -17,4 +18,3 @@ public final class TestDatabaseCleaner {
         jdbc.sql("DELETE FROM users WHERE email NOT IN ('admin@toppaload.local')").update();
     }
 }
-

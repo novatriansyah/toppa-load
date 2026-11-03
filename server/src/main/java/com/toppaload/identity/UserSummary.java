@@ -11,5 +11,18 @@ public record UserSummary(
     Role role,
     boolean active,
     BigDecimal workHoursPerDay,
-    List<Integer> workDays
-) {}
+    List<Integer> workDays,
+    boolean emailNotifications
+) {
+    public UserSummary(
+        UUID id,
+        String email,
+        String fullName,
+        Role role,
+        boolean active,
+        BigDecimal workHoursPerDay,
+        List<Integer> workDays
+    ) {
+        this(id, email, fullName, role, active, workHoursPerDay, workDays, true);
+    }
+}

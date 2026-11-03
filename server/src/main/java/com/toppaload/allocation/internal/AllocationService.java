@@ -7,6 +7,8 @@ import com.toppaload.identity.AuthenticatedActor;
 import com.toppaload.identity.Role;
 import com.toppaload.identity.UserDirectory;
 import com.toppaload.identity.UserSummary;
+import com.toppaload.allocation.AllocationCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import com.toppaload.project.ProjectLookup;
 import com.toppaload.project.ProjectSummary;
 import com.toppaload.project.TaskSummary;
@@ -89,6 +91,7 @@ class AllocationService {
     private final UserDirectory userDirectory;
     private final ProjectLookup projectLookup;
     private final AuditRecorder auditRecorder;
+    private final ApplicationEventPublisher eventPublisher;
     private final boolean memberTentativeEnabled;
 
     AllocationService(
@@ -96,12 +99,14 @@ class AllocationService {
             UserDirectory userDirectory,
             ProjectLookup projectLookup,
             AuditRecorder auditRecorder,
+            ApplicationEventPublisher eventPublisher,
             @Value("${app.allocation.member-tentative-enabled:true}") boolean memberTentativeEnabled
     ) {
         this.allocationRepository = allocationRepository;
         this.userDirectory = userDirectory;
         this.projectLookup = projectLookup;
         this.auditRecorder = auditRecorder;
+        this.eventPublisher = eventPublisher;
         this.memberTentativeEnabled = memberTentativeEnabled;
     }
 
@@ -188,6 +193,17 @@ class AllocationService {
                 null,
                 toSnapshot(saved, user, project, task)
         );
+
+        eventPublisher.publishEvent(new AllocationCreatedEvent(
+                saved.getId(),
+                user.id(),
+                project.id(),
+                project.name(),
+                saved.getStartDate(),
+                saved.getEndDate(),
+                saved.getHoursPerDay(),
+                saved.getAllocationType()
+        ));
 
         return toSummary(saved, user, project, task);
     }

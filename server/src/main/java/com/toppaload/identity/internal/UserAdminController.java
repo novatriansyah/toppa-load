@@ -189,7 +189,8 @@ class UserAdminController {
                 user.getRole(),
                 user.isActive(),
                 user.getWorkHoursPerDay(),
-                user.getWorkDays()
+                user.getWorkDays(),
+                user.isEmailNotifications()
         );
     }
 

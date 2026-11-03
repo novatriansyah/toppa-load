@@ -69,7 +69,8 @@ class JpaUserDirectory implements UserDirectory {
                 user.getRole(),
                 user.isActive(),
                 user.getWorkHoursPerDay(),
-                user.getWorkDays()
+                user.getWorkDays(),
+                user.isEmailNotifications()
         );
     }
 
