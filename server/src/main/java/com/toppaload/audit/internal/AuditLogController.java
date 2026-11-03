@@ -2,6 +2,7 @@ package com.toppaload.audit.internal;
 
 import com.toppaload.audit.AuditEntry;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/audit-logs")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
 class AuditLogController {
 
     private final JdbcClient jdbc;

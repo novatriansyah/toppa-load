@@ -15,3 +15,7 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+
+app:
+  security:
+    bootstrap-admin-email: admin@toppaload.local

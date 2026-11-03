@@ -7,6 +7,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +38,7 @@ class SpaForwardingIT {
     }
 
     @Test
+    @WithMockUser(username = "admin@toppaload.local", roles = "ADMIN")
     void returns404ProblemDetailForUnknownApiPathAndMissingStaticAsset() throws Exception {
         mockMvc.perform(get("/api/v1/tidak-ada"))
                 .andExpect(status().isNotFound())

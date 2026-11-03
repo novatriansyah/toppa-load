@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -88,6 +89,7 @@ class AuditRecorderIT {
     }
 
     @Test
+    @WithMockUser(username = "supervisor@kantor.id", roles = "SUPERVISOR")
     void controllerListsAuditEntries() throws Exception {
         UUID actorId = UUID.randomUUID();
         jdbc.sql("INSERT INTO users (id, email, full_name, role) VALUES (:id, 'supervisor@kantor.id', 'Supervisor', 'SUPERVISOR')")
@@ -125,7 +127,11 @@ class AuditRecorderIT {
     }
 
     @Test
+    @WithMockUser(username = "supervisor@kantor.id", roles = "SUPERVISOR")
     void controllerFiltersByEntityTypeAndEntityId() throws Exception {
+        jdbc.sql("INSERT INTO users (email, full_name, role) VALUES ('supervisor@kantor.id', 'Supervisor', 'SUPERVISOR')")
+                .update();
+
         auditRecorder.record(null, "u1@kantor.id", "CREATE", "TASK", "task-1", null, Map.of("title", "T1"));
         auditRecorder.record(null, "u1@kantor.id", "UPDATE", "TASK", "task-2", null, Map.of("title", "T2"));
 

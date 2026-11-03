@@ -3,6 +3,7 @@ package com.toppaload;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -46,6 +48,11 @@ public class TestcontainersConfiguration {
     @Conditional(DockerAvailableCondition.class)
     PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:17-alpine");
+    }
+
+    @Bean
+    MockMvcBuilderCustomizer mockMvcSecurityCustomizer() {
+        return builder -> builder.apply(SecurityMockMvcConfigurers.springSecurity());
     }
 
     @Configuration(proxyBeanMethods = false)
