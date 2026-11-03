@@ -10,6 +10,8 @@ import {
   UpdateTaskRequest,
 } from './ProjectTypes';
 import { UserSummary } from '../settings/UsersSettingsSection';
+import { TaskKanbanView } from './views/TaskKanbanView';
+import { TaskCalendarView } from './views/TaskCalendarView';
 
 export interface ProjectTasksDrawerProps {
   project: {
@@ -59,6 +61,7 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
   const [quickTitle, setQuickTitle] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'calendar'>('list');
 
   // Edit task state
   const [editingTask, setEditingTask] = useState<TaskSummary | null>(null);
@@ -312,6 +315,43 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
             <option value="DONE">{t('projects.tasks.statusDONE')}</option>
             <option value="BLOCKED">{t('projects.tasks.statusBLOCKED')}</option>
           </select>
+
+          {/* Multi-view toggle: List | Kanban | Calendar */}
+          <div className="flex rounded bg-white p-0.5 border border-slate-200 text-[11px]">
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              List
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('kanban')}
+              className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
+                viewMode === 'kanban'
+                  ? 'bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Kanban
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('calendar')}
+              className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
+                viewMode === 'calendar'
+                  ? 'bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Kalender
+            </button>
+          </div>
         </div>
 
         {/* Tasks List */}
@@ -324,6 +364,36 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
             <div className="p-8 text-center text-xs text-slate-400 space-y-1">
               <p>{t('projects.tasks.empty')}</p>
               <p className="text-[11px] text-slate-400">{t('projects.tasks.emptyTip')}</p>
+            </div>
+          ) : viewMode === 'kanban' ? (
+            <div className="p-3">
+              <TaskKanbanView
+                tasks={tasks}
+                onTaskClick={handleOpenEdit}
+                onStatusChange={(taskId, newStatus) => {
+                  const tsk = tasks.find((x) => x.id === taskId);
+                  if (tsk) {
+                    updateTaskMutation.mutate({
+                      id: taskId,
+                      payload: {
+                        title: tsk.title,
+                        description: tsk.description || null,
+                        status: newStatus,
+                        priority: (tsk.priority as TaskPriority) || 'MEDIUM',
+                        estimatedHours: tsk.estimatedHours != null ? Number(tsk.estimatedHours) : undefined,
+                        progressPercent: tsk.progressPercent ?? 0,
+                        startDate: tsk.startDate || null,
+                        dueDate: tsk.dueDate || null,
+                        assigneeId: tsk.assigneeId || null,
+                      },
+                    });
+                  }
+                }}
+              />
+            </div>
+          ) : viewMode === 'calendar' ? (
+            <div className="p-3">
+              <TaskCalendarView tasks={tasks} onTaskClick={handleOpenEdit} />
             </div>
           ) : (
             <table className="w-full text-left border-collapse text-xs">
