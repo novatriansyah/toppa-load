@@ -50,12 +50,13 @@ describe('AppShell & Localization Parity', () => {
     const nav = screen.getByRole('navigation');
     expect(nav).toHaveTextContent('Beban Kerja');
     expect(nav).toHaveTextContent('Proyek & Task');
+    expect(nav).toHaveTextContent('Timesheet');
     expect(nav).toHaveTextContent('Alokasi');
     expect(nav).toHaveTextContent('Cuti & Libur');
     expect(nav).toHaveTextContent('Pengaturan');
   });
 
-  it('renders 5 distinct work navigation links with expected paths', () => {
+  it('renders 6 distinct work navigation links with expected paths', () => {
     renderWithProviders(
       <MemoryRouter initialEntries={['/beban-kerja']}>
         <AppShell />
@@ -63,10 +64,10 @@ describe('AppShell & Localization Parity', () => {
     );
     const nav = screen.getByRole('navigation');
     const links = nav.querySelectorAll('a');
-    expect(links.length).toBe(5);
+    expect(links.length).toBe(6);
 
     const hrefs = Array.from(links).map((link) => link.getAttribute('href'));
-    expect(hrefs).toEqual(['/beban-kerja', '/proyek', '/alokasi', '/cuti', '/pengaturan']);
+    expect(hrefs).toEqual(['/beban-kerja', '/proyek', '/timesheet', '/alokasi', '/cuti', '/pengaturan']);
   });
 
   it('keeps identical top-level and nested translation keys between id.json and en.json', () => {

@@ -6,6 +6,7 @@ import { ProjectsPage } from '../features/projects/ProjectsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { HeatmapPage } from '../features/heatmap/HeatmapPage';
 import { LeavesAndHolidaysPage } from '../features/leaves/LeavesAndHolidaysPage';
+import { TimesheetPage } from '../features/timesheets/TimesheetPage';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/beban-kerja" replace /> },
       { path: 'beban-kerja', element: <HeatmapPage /> },
       { path: 'proyek', element: <ProjectsPage /> },
+      { path: 'timesheet', element: <TimesheetPage /> },
       { path: 'alokasi', element: <Navigate to="/beban-kerja" replace /> },
       { path: 'cuti', element: <LeavesAndHolidaysPage /> },
       { path: 'pengaturan', element: <SettingsPage /> },

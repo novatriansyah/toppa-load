@@ -11,6 +11,7 @@
   "nav": {
     "workload": "Workload",
     "projects": "Projects & Tasks",
+    "timesheet": "Timesheet",
     "allocations": "Allocations",
     "leaves": "Leaves & Holidays",
     "settings": "Settings"
