@@ -13,3 +13,4 @@ public record ApplyBalanceSuggestionRequest(
 
         UUID taskId
 ) {}
+

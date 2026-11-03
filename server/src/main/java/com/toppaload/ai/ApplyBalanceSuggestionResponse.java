@@ -10,3 +10,4 @@ public record ApplyBalanceSuggestionResponse(
         String newUserName,
         UUID taskId
 ) {}
+

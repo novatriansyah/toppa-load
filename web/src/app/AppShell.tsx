@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from '../features/auth/useCurrentUser';
 import { NotificationBellPopover } from '../features/notifications/NotificationBellPopover';
 import { CalendarSyncModal } from '../features/calendar/CalendarSyncModal';
+import { LanguageSwitcher } from '../shared/components/LanguageSwitcher';
 import { apiClient } from '../shared/api/httpClient';
 
 interface SystemInfo {
@@ -182,6 +183,9 @@ export const AppShell: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </button>
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
           {/* User Profile Badge */}
           <div

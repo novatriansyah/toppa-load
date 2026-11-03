@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from './useCurrentUser';
+import { LanguageSwitcher } from '../../shared/components/LanguageSwitcher';
 import { apiClient, HttpError } from '../../shared/api/httpClient';
 
 export const LoginPage: React.FC = () => {
@@ -48,6 +49,9 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-slate-50 p-4">
       <div className="w-full max-w-sm bg-white border border-slate-200 rounded-md p-6 shadow-xs space-y-5">
+        <div className="flex justify-end -mt-1 -mr-1">
+          <LanguageSwitcher />
+        </div>
         {/* Brand Header */}
         <div className="space-y-1.5 text-center">
           <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded bg-slate-100 text-[11px] font-mono text-slate-600 border border-slate-200 mb-1">
