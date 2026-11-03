@@ -8,8 +8,8 @@ Panduan darurat dan operasional rutin untuk mengelola **Toppa Load** di VPS + Co
 
 - **Arsitektur:** 1 Kontainer Aplikasi (`toppa-load`, Java 25 + Spring Boot 4.1 + React Static SPA di port internal `8080`) + 1 Kontainer PostgreSQL 17 terkelola di Coolify.
 - **Lingkungan di VPS yang Sama:**
-  - `production`: Branch `main` (deploy via tombol manual di Coolify atau webhook terproteksi setelah CI hijau), database `toppaload_prod`.
-  - `staging`: Branch `main` (auto-deploy saat CI hijau), database terpisah `toppaload_staging` (hanya berisi data sintetis).
+  - `production`: Branch `master` (deploy via tombol manual di Coolify atau webhook terproteksi setelah CI hijau), database `toppaload_prod`.
+  - `staging`: Branch `development` (auto-deploy saat CI hijau), database terpisah `toppaload_staging` (hanya berisi data sintetis).
 - **Health Check Endpoint:** `GET /actuator/health` (harus mengembalikan `{"status":"UP"}`).
 - **Batas Memori JVM:** `JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=50.0 -Xmx512m -Duser.timezone=UTC"`.
 
@@ -17,9 +17,9 @@ Panduan darurat dan operasional rutin untuk mengelola **Toppa Load** di VPS + Co
 
 ## 2. Prosedur Deploy Normal
 
-1. Pastikan seluruh pengujian lulus di GitHub Actions pada branch `main` (`Maven Verify + Modulith + Testcontainers` dan `Frontend Lint/Build/Playwright`).
-2. Periksa bahwa *auto-deploy* ke **Staging** di Coolify berhasil dan `https://staging-workload.<domain>/actuator/health` berstatus `UP`.
-3. Buka Dashboard Coolify -> Project `Toppa Load` -> Environment `production` -> Application `toppa-load-app` -> klik **Deploy**.
+1. Pastikan seluruh pengujian lulus di GitHub Actions pada branch `development` atau `master` (`Maven Verify + Modulith + Testcontainers` dan `Frontend Lint/Build/Playwright`).
+2. Periksa bahwa *auto-deploy* ke **Staging** di Coolify dari branch `development` berhasil dan `https://staging-workload.<domain>/actuator/health` berstatus `UP`.
+3. Untuk rilis produksi, merge `development` ke `master` -> buka Dashboard Coolify -> Project `Toppa Load` -> Environment `production` -> Application `toppa-load-app` -> klik **Deploy** (atau trigger otomatis via webhook `master`).
 4. Pantau log startup Coolify hingga muncul baris:
    - `Successfully applied N migrations to schema "public"` (Flyway)
    - `Started ToppaLoadApplication in X seconds`

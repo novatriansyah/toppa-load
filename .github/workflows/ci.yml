@@ -3,10 +3,12 @@ name: CI & Deployment Pipeline
 on:
   push:
     branches:
-      - main
+      - master
+      - development
   pull_request:
     branches:
-      - main
+      - master
+      - development
 
 jobs:
   frontend-check:
@@ -61,7 +63,7 @@ jobs:
     name: Trigger Coolify Staging Webhook
     runs-on: ubuntu-latest
     needs: docker-check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     steps:
       - name: Trigger Coolify Staging Deployment
         env:
@@ -73,4 +75,22 @@ jobs:
             echo "Staging deployment webhook triggered successfully."
           else
             echo "COOLIFY_STAGING_WEBHOOK_URL secret is not set; skipping deployment."
+          fi
+
+  deploy-production:
+    name: Trigger Coolify Production Webhook
+    runs-on: ubuntu-latest
+    needs: docker-check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Trigger Coolify Production Deployment
+        env:
+          COOLIFY_PRODUCTION_WEBHOOK_URL: ${{ secrets.COOLIFY_PRODUCTION_WEBHOOK_URL }}
+        run: |
+          if [ -n "$COOLIFY_PRODUCTION_WEBHOOK_URL" ]; then
+            echo "Triggering Coolify Production deployment webhook..."
+            curl -fsSL -X POST "$COOLIFY_PRODUCTION_WEBHOOK_URL"
+            echo "Production deployment webhook triggered successfully."
+          else
+            echo "COOLIFY_PRODUCTION_WEBHOOK_URL secret is not set; skipping deployment."
           fi
