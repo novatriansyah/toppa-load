@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { apiClient } from '../../shared/api/httpClient';
 
 interface CalendarTokenData {
   id: string;
@@ -25,23 +26,12 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
 
   const { data: tokenData, isLoading } = useQuery<CalendarTokenData>({
     queryKey: ['calendar-feed-token'],
-    queryFn: async () => {
-      const res = await fetch('/api/v1/calendar/token', { credentials: 'include' });
-      if (!res.ok) throw new Error('Gagal memuat token kalender');
-      return res.json();
-    },
+    queryFn: () => apiClient.get<CalendarTokenData>('/api/v1/calendar/token'),
     enabled: isOpen,
   });
 
   const rotateMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/v1/calendar/token/rotate', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Gagal merotasi tautan kalender');
-      return res.json();
-    },
+    mutationFn: () => apiClient.post<CalendarTokenData>('/api/v1/calendar/token/rotate', {}),
     onSuccess: (newData: CalendarTokenData) => {
       queryClient.setQueryData(['calendar-feed-token'], newData);
       setCopied(false);
@@ -138,8 +128,8 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             <button
               onClick={() => setActiveTab('outlook')}
               className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'outlook'
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
             >
               <svg className="w-4 h-4 text-sky-600" fill="currentColor" viewBox="0 0 24 24">
@@ -150,8 +140,8 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             <button
               onClick={() => setActiveTab('google')}
               className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'google'
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
             >
               <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">

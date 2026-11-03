@@ -16,11 +16,14 @@ import { AllocationFormDrawer } from '../allocations/AllocationFormDrawer';
 interface WorkloadBalanceSuggestion {
   overloadedUserId: string;
   overloadedUserName: string;
-  overloadedUserUtilPct: number;
+  overloadedUserUtilPct?: number;
+  currentUtilizationPct?: number;
   candidateUserId: string;
+  suggestedCandidateId?: string;
   candidateUserName: string;
-  candidateUserUtilPct: number;
-  candidateAvailableHours: number;
+  suggestedCandidateName?: string;
+  candidateUserUtilPct?: number;
+  candidateAvailableHours?: number;
   allocationId?: string;
   projectId?: string;
   projectCode?: string;
@@ -30,7 +33,8 @@ interface WorkloadBalanceSuggestion {
   hoursPerDay?: number;
   startDate?: string;
   endDate?: string;
-  suggestionText: string;
+  suggestionText?: string;
+  suggestionReason?: string;
   sharedSkill?: string;
 }
 
@@ -402,107 +406,126 @@ export const HeatmapPage: React.FC = () => {
 
           {showAiSuggestions && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-amber-200/60">
-              {balanceSuggestions.map((sug, idx) => (
-                <div
-                  key={`${sug.overloadedUserId}-${sug.candidateUserId}-${sug.allocationId || idx}`}
-                  className="p-3 rounded bg-white border border-amber-200 text-xs space-y-2 shadow-2xs"
-                >
-                  <div className="flex items-center justify-between font-medium">
-                    <span className="text-rose-700 font-semibold">
-                      {sug.overloadedUserName} ({sug.overloadedUserUtilPct}% {t('ai.load', 'beban')})
-                    </span>
-                    <span className="text-slate-400">➔</span>
-                    <span className="text-emerald-700 font-semibold">
-                      {sug.candidateUserName} ({sug.candidateUserUtilPct}% {t('ai.load', 'beban')}, {sug.candidateAvailableHours}{t('ai.hrsFreeShort', 'j luang')})
-                    </span>
-                  </div>
+              {balanceSuggestions.map((sug, idx) => {
+                const overloadedName = sug.overloadedUserName || t('common.user', 'Anggota');
+                const overloadedUtil = sug.overloadedUserUtilPct ?? sug.currentUtilizationPct;
+                const candidateId = sug.candidateUserId || sug.suggestedCandidateId;
+                const candidateName = sug.candidateUserName || sug.suggestedCandidateName || t('common.user', 'Anggota');
+                const candidateUtil = sug.candidateUserUtilPct;
+                const candidateHours = sug.candidateAvailableHours;
+                const suggestionText = sug.suggestionText || sug.suggestionReason;
 
-                  {sug.projectCode && (
-                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-700 bg-slate-50 border border-slate-200 p-1.5 rounded">
-                      <span className="font-bold text-slate-900">[{sug.projectCode}]</span>
-                      {sug.taskTitle && <span className="text-slate-800">• {sug.taskTitle}</span>}
-                      {sug.hoursPerDay && (
-                        <span className="text-amber-800 font-semibold">({sug.hoursPerDay} {t('common.hoursPerDayUnit', 'jam/hari')})</span>
-                      )}
+                return (
+                  <div
+                    key={`${sug.overloadedUserId}-${candidateId || idx}-${sug.allocationId || idx}`}
+                    className="p-3 rounded bg-white border border-amber-200 text-xs space-y-2 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between font-medium">
+                      <span className="text-rose-700 font-semibold">
+                        {overloadedName} {overloadedUtil != null ? `(${overloadedUtil}% ${t('ai.load', 'beban')})` : ''}
+                      </span>
+                      <span className="text-slate-400">➔</span>
+                      <span className="text-emerald-700 font-semibold">
+                        {candidateName}
+                        {(candidateUtil != null || candidateHours != null) ? (
+                          <>
+                            {' ('}
+                            {candidateUtil != null ? `${candidateUtil}% ${t('ai.load', 'beban')}` : ''}
+                            {candidateUtil != null && candidateHours != null ? ', ' : ''}
+                            {candidateHours != null ? `${candidateHours} ${t('ai.hrsFreeShort', 'j luang')}` : ''}
+                            {')'}
+                          </>
+                        ) : null}
+                      </span>
                     </div>
-                  )}
 
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    {sug.taskTitle ? (
-                      t('ai.suggestionWithTask', {
-                        overloadedUser: sug.overloadedUserName,
-                        overloadedUtil: sug.overloadedUserUtilPct,
-                        taskTitle: sug.taskTitle,
-                        projectCode: sug.projectCode,
-                        hoursPerDay: sug.hoursPerDay,
-                        candidateUser: sug.candidateUserName,
-                        candidateUtil: sug.candidateUserUtilPct,
-                        availableHours: sug.candidateAvailableHours,
-                        defaultValue: sug.suggestionText,
-                      })
-                    ) : sug.projectCode ? (
-                      t('ai.suggestionWithProject', {
-                        overloadedUser: sug.overloadedUserName,
-                        overloadedUtil: sug.overloadedUserUtilPct,
-                        projectCode: sug.projectCode,
-                        hoursPerDay: sug.hoursPerDay,
-                        candidateUser: sug.candidateUserName,
-                        candidateUtil: sug.candidateUserUtilPct,
-                        availableHours: sug.candidateAvailableHours,
-                        defaultValue: sug.suggestionText,
-                      })
-                    ) : (
-                      t('ai.suggestionGeneral', {
-                        overloadedUser: sug.overloadedUserName,
-                        overloadedUtil: sug.overloadedUserUtilPct,
-                        candidateUser: sug.candidateUserName,
-                        candidateUtil: sug.candidateUserUtilPct,
-                        availableHours: sug.candidateAvailableHours,
-                        defaultValue: sug.suggestionText,
-                      })
+                    {sug.projectCode && (
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-700 bg-slate-50 border border-slate-200 p-1.5 rounded">
+                        <span className="font-bold text-slate-900">[{sug.projectCode}]</span>
+                        {sug.taskTitle && <span className="text-slate-800">• {sug.taskTitle}</span>}
+                        {sug.hoursPerDay && (
+                          <span className="text-amber-800 font-semibold">({sug.hoursPerDay} {t('common.hoursPerDayUnit', 'jam/hari')})</span>
+                        )}
+                      </div>
                     )}
-                  </p>
 
-                  <div className="pt-1 flex items-center justify-end gap-2">
-                    {sug.allocationId && (
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      {sug.taskTitle ? (
+                        t('ai.suggestionWithTask', {
+                          overloadedUser: overloadedName,
+                          overloadedUtil: overloadedUtil,
+                          taskTitle: sug.taskTitle,
+                          projectCode: sug.projectCode,
+                          hoursPerDay: sug.hoursPerDay,
+                          candidateUser: candidateName,
+                          candidateUtil: candidateUtil,
+                          availableHours: candidateHours,
+                          defaultValue: suggestionText,
+                        })
+                      ) : sug.projectCode ? (
+                        t('ai.suggestionWithProject', {
+                          overloadedUser: overloadedName,
+                          overloadedUtil: overloadedUtil,
+                          projectCode: sug.projectCode,
+                          hoursPerDay: sug.hoursPerDay,
+                          candidateUser: candidateName,
+                          candidateUtil: candidateUtil,
+                          availableHours: candidateHours,
+                          defaultValue: suggestionText,
+                        })
+                      ) : (
+                        t('ai.suggestionGeneral', {
+                          overloadedUser: overloadedName,
+                          overloadedUtil: overloadedUtil,
+                          candidateUser: candidateName,
+                          candidateUtil: candidateUtil,
+                          availableHours: candidateHours,
+                          defaultValue: suggestionText,
+                        })
+                      )}
+                    </p>
+
+                    <div className="pt-1 flex items-center justify-end gap-2">
+                      {sug.allocationId && (
+                        <button
+                          type="button"
+                          disabled={applyBalanceMutation.isPending}
+                          onClick={() => applyBalanceMutation.mutate(sug)}
+                          className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-[11px] font-semibold transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                          title={t('ai.quickApplyTooltip', 'Langsung alihkan alokasi & task ini ke anggota terpilih')}
+                        >
+                          <span>✓</span>
+                          <span>
+                            {applyBalanceMutation.isPending
+                              ? t('common.loading', 'Menerapkan...')
+                              : t('ai.quickApply', 'Terapkan Otomatis')}
+                          </span>
+                        </button>
+                      )}
                       <button
                         type="button"
-                        disabled={applyBalanceMutation.isPending}
-                        onClick={() => applyBalanceMutation.mutate(sug)}
-                        className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-[11px] font-semibold transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-                        title={t('ai.quickApplyTooltip', 'Langsung alihkan alokasi & task ini ke anggota terpilih')}
+                        onClick={() =>
+                          openNewAllocationDrawer(
+                            candidateId,
+                            sug.startDate,
+                            sug.endDate,
+                            sug.projectId,
+                            sug.taskId,
+                            sug.hoursPerDay ? String(sug.hoursPerDay) : undefined,
+                            t('ai.rebalanceNotesFrom', {
+                              name: overloadedName,
+                              defaultValue: `Penyeimbangan beban dari ${overloadedName}`,
+                            })
+                          )
+                        }
+                        className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
                       >
-                        <span>✓</span>
-                        <span>
-                          {applyBalanceMutation.isPending
-                            ? t('common.loading', 'Menerapkan...')
-                            : t('ai.quickApply', 'Terapkan Otomatis')}
-                        </span>
+                        {t('ai.adjustManually', 'Sesuaikan Alokasi...')}
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openNewAllocationDrawer(
-                          sug.candidateUserId,
-                          sug.startDate,
-                          sug.endDate,
-                          sug.projectId,
-                          sug.taskId,
-                          sug.hoursPerDay ? String(sug.hoursPerDay) : undefined,
-                          t('ai.rebalanceNotesFrom', {
-                            name: sug.overloadedUserName,
-                            defaultValue: `Penyeimbangan beban dari ${sug.overloadedUserName}`,
-                          })
-                        )
-                      }
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
-                    >
-                      {t('ai.adjustManually', 'Sesuaikan Alokasi...')}
-                    </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

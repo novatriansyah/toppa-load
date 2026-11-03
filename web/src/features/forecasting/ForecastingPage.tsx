@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { apiClient } from '../../shared/api/httpClient';
 
 interface Scenario {
   id: string;
@@ -83,11 +84,7 @@ export const ForecastingPage: React.FC = () => {
   // Fetch scenarios list
   const { data: scenarios = [], isLoading: isLoadingScenarios } = useQuery<Scenario[]>({
     queryKey: ['scenarios'],
-    queryFn: async () => {
-      const res = await fetch('/api/v1/scenarios', { credentials: 'include' });
-      if (!res.ok) throw new Error('Gagal memuat skenario');
-      return res.json();
-    },
+    queryFn: () => apiClient.get<Scenario[]>('/api/v1/scenarios'),
   });
 
   // Default select first scenario if none selected
@@ -97,12 +94,10 @@ export const ForecastingPage: React.FC = () => {
   // Fetch allocations for active scenario
   const { data: draftAllocations = [] } = useQuery<ScenarioAllocation[]>({
     queryKey: ['scenario-allocations', activeScenarioId],
-    queryFn: async () => {
-      if (!activeScenarioId) return [];
-      const res = await fetch(`/api/v1/scenarios/${activeScenarioId}/allocations`, { credentials: 'include' });
-      if (!res.ok) throw new Error('Gagal memuat alokasi skenario');
-      return res.json();
-    },
+    queryFn: () =>
+      activeScenarioId
+        ? apiClient.get<ScenarioAllocation[]>(`/api/v1/scenarios/${activeScenarioId}/allocations`)
+        : Promise.resolve([]),
     enabled: !!activeScenarioId,
   });
 
@@ -110,12 +105,10 @@ export const ForecastingPage: React.FC = () => {
   const { data: members = [] } = useQuery<MemberOption[]>({
     queryKey: ['members-list'],
     queryFn: async () => {
-      const res = await fetch('/api/v1/reports/utilization', { credentials: 'include' });
-      if (!res.ok) return [];
-      const data = await res.json();
-      return (data.members || []).map((m: any) => ({
-        id: m.userId,
-        name: m.name,
+      const data = await apiClient.get<Array<{ id: string; fullName: string; role: string }>>('/api/v1/users');
+      return data.map((m) => ({
+        id: m.id,
+        name: m.fullName,
         role: m.role,
       }));
     },
@@ -124,30 +117,20 @@ export const ForecastingPage: React.FC = () => {
   // Fetch simulation result for active scenario
   const { data: simulation, isLoading: isSimulating, refetch: runSimulation } = useQuery<SimulationResult>({
     queryKey: ['scenario-simulation', activeScenarioId],
-    queryFn: async () => {
-      if (!activeScenarioId) return null as any;
-      const res = await fetch(`/api/v1/scenarios/${activeScenarioId}/simulate`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Gagal menjalankan simulasi');
-      return res.json();
-    },
+    queryFn: () =>
+      activeScenarioId
+        ? apiClient.post<SimulationResult>(`/api/v1/scenarios/${activeScenarioId}/simulate`, {})
+        : Promise.resolve(null as any),
     enabled: !!activeScenarioId,
   });
 
   // Create scenario mutation
   const createScenarioMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/v1/scenarios', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newScenarioName, description: newScenarioDesc }),
-      });
-      if (!res.ok) throw new Error('Gagal membuat skenario');
-      return res.json();
-    },
+    mutationFn: () =>
+      apiClient.post<Scenario>('/api/v1/scenarios', {
+        name: newScenarioName,
+        description: newScenarioDesc,
+      }),
     onSuccess: (data: Scenario) => {
       queryClient.invalidateQueries({ queryKey: ['scenarios'] });
       setSelectedScenarioId(data.id);
@@ -165,23 +148,16 @@ export const ForecastingPage: React.FC = () => {
 
   // Add allocation mutation
   const addAllocMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeScenarioId) return;
-      const res = await fetch(`/api/v1/scenarios/${activeScenarioId}/allocations`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: allocUserId,
-          projectName: allocProjectName,
-          startDate: allocStartDate,
-          endDate: allocEndDate,
-          hoursPerDay: parseFloat(allocHoursPerDay),
-          notes: allocNotes,
-        }),
+    mutationFn: () => {
+      if (!activeScenarioId) return Promise.reject(new Error('Pilih skenario terlebih dahulu'));
+      return apiClient.post<ScenarioAllocation>(`/api/v1/scenarios/${activeScenarioId}/allocations`, {
+        userId: allocUserId,
+        projectName: allocProjectName,
+        startDate: allocStartDate,
+        endDate: allocEndDate,
+        hoursPerDay: parseFloat(allocHoursPerDay.replace(',', '.')),
+        notes: allocNotes,
       });
-      if (!res.ok) throw new Error('Gagal menambahkan alokasi percobaan');
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scenario-allocations', activeScenarioId] });
@@ -201,13 +177,9 @@ export const ForecastingPage: React.FC = () => {
 
   // Delete allocation mutation
   const deleteAllocMutation = useMutation({
-    mutationFn: async (allocId: string) => {
-      if (!activeScenarioId) return;
-      const res = await fetch(`/api/v1/scenarios/${activeScenarioId}/allocations/${allocId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Gagal menghapus alokasi');
+    mutationFn: (allocId: string) => {
+      if (!activeScenarioId) return Promise.reject(new Error('Pilih skenario terlebih dahulu'));
+      return apiClient.delete(`/api/v1/scenarios/${activeScenarioId}/allocations/${allocId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scenario-allocations', activeScenarioId] });
@@ -218,14 +190,12 @@ export const ForecastingPage: React.FC = () => {
 
   // Promote scenario mutation
   const promoteMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeScenarioId) return;
-      const res = await fetch(`/api/v1/scenarios/${activeScenarioId}/promote`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Gagal mempromosikan skenario');
-      return res.json();
+    mutationFn: () => {
+      if (!activeScenarioId) return Promise.reject(new Error('Pilih skenario terlebih dahulu'));
+      return apiClient.post<{ message?: string; promotedAllocationsCount?: number }>(
+        `/api/v1/scenarios/${activeScenarioId}/promote`,
+        {}
+      );
     },
     onSuccess: (data: { message?: string; promotedAllocationsCount?: number }) => {
       queryClient.invalidateQueries({ queryKey: ['scenarios'] });
@@ -649,14 +619,14 @@ export const ForecastingPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.hoursPerDayField', 'Jam Alokasi / Hari (1-24) *')}</label>
+                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.hoursPerDayField', 'Jam Alokasi / Hari (0.1-24) *')}</label>
                 <input
                   type="number"
-                  step="0.5"
-                  min="0.5"
+                  step="any"
+                  min="0.1"
                   max="24"
                   value={allocHoursPerDay}
-                  onChange={(e) => setAllocHoursPerDay(e.target.value)}
+                  onChange={(e) => setAllocHoursPerDay(e.target.value.replace(',', '.'))}
                   className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
                 />
               </div>

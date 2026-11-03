@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { apiClient } from '../../shared/api/httpClient';
 
 interface MemberUtilization {
   userId: string;
@@ -43,25 +44,15 @@ export const ReportsPage: React.FC = () => {
 
   const { data: summary, isLoading, refetch } = useQuery<UtilizationSummary>({
     queryKey: ['utilization-report', startDate, endDate],
-    queryFn: async () => {
-      const res = await fetch(`/api/v1/reports/utilization?startDate=${startDate}&endDate=${endDate}`, {
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Gagal memuat laporan');
-      return res.json();
-    },
+    queryFn: () =>
+      apiClient.get<UtilizationSummary>('/api/v1/reports/utilization', {
+        params: { startDate, endDate },
+      }),
   });
 
   const sendEmailMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch('/api/v1/reports/send-summary', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error('Gagal mengirim email rekap');
-      return res.json();
-    },
+    mutationFn: () =>
+      apiClient.post<{ message?: string }>('/api/v1/reports/send-summary', {}),
     onSuccess: (data: { message?: string }) => {
       setFeedbackMsg(data.message || 'Email rekap berhasil dikirim atau dijadwalkan!');
       setTimeout(() => setFeedbackMsg(null), 5000);

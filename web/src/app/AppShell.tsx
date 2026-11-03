@@ -116,9 +116,8 @@ export const AppShell: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    fetch('/api/v1/system/info')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: SystemInfo | null) => {
+    apiClient.get<SystemInfo>('/api/v1/system/info')
+      .then((data: SystemInfo) => {
         if (isMounted && data) {
           setSystemInfo(data);
         }

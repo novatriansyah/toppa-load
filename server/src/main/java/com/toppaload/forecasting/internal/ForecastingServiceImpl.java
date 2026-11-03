@@ -27,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,8 +203,28 @@ class ForecastingServiceImpl implements ForecastingService {
         ScenarioDto scenario = getScenario(scenarioId);
         List<ScenarioAllocationDto> draftAllocations = getScenarioAllocations(scenarioId);
 
-        LocalDate start = (startDate != null) ? startDate : LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate end = (endDate != null) ? endDate : start.plusWeeks(8).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate start;
+        LocalDate end;
+
+        if (startDate != null && endDate != null) {
+            start = startDate;
+            end = endDate;
+        } else if (!draftAllocations.isEmpty()) {
+            LocalDate minAllocStart = draftAllocations.stream()
+                    .map(ScenarioAllocationDto::startDate)
+                    .min(Comparator.naturalOrder())
+                    .orElse(LocalDate.now());
+            LocalDate maxAllocEnd = draftAllocations.stream()
+                    .map(ScenarioAllocationDto::endDate)
+                    .max(Comparator.naturalOrder())
+                    .orElse(minAllocStart.plusWeeks(4));
+
+            start = minAllocStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = maxAllocEnd.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        } else {
+            start = (startDate != null) ? startDate : LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = (endDate != null) ? endDate : start.plusWeeks(8).with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        }
 
         SystemSettingsDto settings = systemSettingsReader.currentSettings();
         BigDecimal underThreshold = settings.underutilizedThresholdPct();

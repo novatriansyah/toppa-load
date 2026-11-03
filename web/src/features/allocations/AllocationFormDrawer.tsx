@@ -203,7 +203,7 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
       setErrorMessage(t('allocations.invalidDateRange', 'Tanggal selesai tidak boleh sebelum tanggal mulai.'));
       return;
     }
-    const parsedHours = parseFloat(hoursPerDay);
+    const parsedHours = parseFloat(hoursPerDay.replace(',', '.'));
     if (isNaN(parsedHours) || parsedHours <= 0 || parsedHours > 24) {
       setErrorMessage(t('allocations.invalidHours', 'Jam per hari harus antara 0.1 dan 24.'));
       return;
@@ -240,7 +240,7 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} noValidate className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           {errorMessage && (
             <div className="p-2.5 rounded bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
               <span className="shrink-0">⚠️</span>
@@ -357,12 +357,12 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
               <div className="relative">
                 <input
                   type="number"
-                  step="0.25"
+                  step="any"
                   min="0.1"
                   max="24"
                   required
                   value={hoursPerDay}
-                  onChange={(e) => setHoursPerDay(e.target.value)}
+                  onChange={(e) => setHoursPerDay(e.target.value.replace(',', '.'))}
                   className="w-full px-2.5 py-1.5 pr-8 border border-slate-300 rounded font-mono text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none"
                 />
                 <span className="absolute right-2.5 top-1.5 text-slate-400 font-mono">
@@ -453,8 +453,8 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
               {saveMutation.isPending
                 ? t('common.saving', 'Menyimpan...')
                 : editingAllocation
-                ? t('common.saveChanges', 'Simpan Perubahan')
-                : t('allocations.createButton', 'Simpan Alokasi')}
+                  ? t('common.saveChanges', 'Simpan Perubahan')
+                  : t('allocations.createButton', 'Simpan Alokasi')}
             </button>
           </div>
         </form>
