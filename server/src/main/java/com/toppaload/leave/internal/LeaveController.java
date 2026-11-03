@@ -49,3 +49,4 @@ class LeaveController {
         leaveService.deleteLeave(id);
     }
 }
+

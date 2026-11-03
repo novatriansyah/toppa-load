@@ -1,6 +1,7 @@
 package com.toppaload.leave.internal;
 
 import com.toppaload.leave.HolidaySummary;
+import com.toppaload.leave.internal.HolidayService.HolidayImportItem;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +43,7 @@ class HolidayController {
 
     @PostMapping(value = "/import", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
-    HolidayService.ImportResult importHolidaysJson(@RequestBody List<@Valid HolidayService.HolidayImportItem> items) {
+    HolidayService.ImportResult importHolidaysJson(@RequestBody List<@Valid HolidayImportItem> items) {
         return holidayService.importHolidays(items);
     }
 
