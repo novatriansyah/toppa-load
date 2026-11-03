@@ -447,6 +447,10 @@
     "balanceSuggestionsTitle": "Saran Penyeimbangan Beban Kerja AI",
     "balanceSuggestionsSubtitle": "Anggota tim dengan beban lebih yang dapat dialihkan ke anggota berkapasitas longgar.",
     "transferTo": "Dapat dialihkan ke",
-    "noSuggestions": "Beban kerja tim seimbang! Tidak ada saran penyeimbangan saat ini."
+    "noSuggestions": "Beban kerja tim seimbang! Tidak ada saran penyeimbangan saat ini.",
+    "quickApply": "Terapkan Otomatis",
+    "quickApplyTooltip": "Langsung alihkan alokasi & task ini ke anggota terpilih",
+    "adjustManually": "Sesuaikan Alokasi...",
+    "applySuccess": "Beban kerja berhasil diseimbangkan!"
   }
 }

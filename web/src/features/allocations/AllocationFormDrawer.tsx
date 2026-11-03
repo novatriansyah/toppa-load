@@ -11,6 +11,10 @@ export interface AllocationFormDrawerProps {
   initialUserId?: string;
   initialStartDate?: string;
   initialEndDate?: string;
+  initialProjectId?: string;
+  initialTaskId?: string;
+  initialHoursPerDay?: string;
+  initialNotes?: string;
   editingAllocation?: AllocationSummaryData | null;
   onSuccess?: () => void;
 }
@@ -40,6 +44,10 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
   initialUserId,
   initialStartDate,
   initialEndDate,
+  initialProjectId,
+  initialTaskId,
+  initialHoursPerDay,
+  initialNotes,
   editingAllocation,
   onSuccess,
 }) => {
@@ -93,16 +101,38 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
       setNotes(editingAllocation.notes || '');
     } else {
       setUserId(initialUserId || currentUser?.userId || '');
-      setProjectId('');
-      setTaskId('');
+      setProjectId(initialProjectId || '');
+      setTaskId(initialTaskId || '');
       setStartDate(initialStartDate || new Date().toISOString().split('T')[0]);
       setEndDate(initialEndDate || initialStartDate || new Date().toISOString().split('T')[0]);
-      setHoursPerDay('8.0');
+      setHoursPerDay(initialHoursPerDay || '8.0');
       setAllocationType(isMember ? 'TENTATIVE' : 'CONFIRMED');
-      setNotes('');
+      setNotes(initialNotes || '');
     }
     setErrorMessage('');
-  }, [editingAllocation, initialUserId, initialStartDate, initialEndDate, currentUser, isMember, isOpen]);
+  }, [
+    editingAllocation,
+    initialUserId,
+    initialStartDate,
+    initialEndDate,
+    initialProjectId,
+    initialTaskId,
+    initialHoursPerDay,
+    initialNotes,
+    currentUser,
+    isMember,
+    isOpen,
+  ]);
+
+  // Sync taskId when tasks finishes loading if initialTaskId was requested
+  useEffect(() => {
+    if (initialTaskId && tasks.length > 0 && !taskId) {
+      const match = tasks.find((t) => t.id === initialTaskId);
+      if (match) {
+        setTaskId(match.id);
+      }
+    }
+  }, [tasks, initialTaskId, taskId]);
 
   // Live preview query
   const canPreview = Boolean(

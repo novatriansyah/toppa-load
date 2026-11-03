@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../shared/api/httpClient';
 import {
@@ -16,11 +16,22 @@ import { AllocationFormDrawer } from '../allocations/AllocationFormDrawer';
 interface WorkloadBalanceSuggestion {
   overloadedUserId: string;
   overloadedUserName: string;
-  currentUtilizationPct: number;
-  suggestedCandidateId: string;
-  suggestedCandidateName: string;
+  overloadedUserUtilPct: number;
+  candidateUserId: string;
+  candidateUserName: string;
+  candidateUserUtilPct: number;
   candidateAvailableHours: number;
-  suggestionReason: string;
+  allocationId?: string;
+  projectId?: string;
+  projectCode?: string;
+  projectName?: string;
+  taskId?: string;
+  taskTitle?: string;
+  hoursPerDay?: number;
+  startDate?: string;
+  endDate?: string;
+  suggestionText: string;
+  sharedSkill?: string;
 }
 
 function getInitialDateRange(granularity: GranularityType): { from: string; to: string } {
@@ -64,6 +75,7 @@ function getInitialDateRange(granularity: GranularityType): { from: string; to: 
 
 export const HeatmapPage: React.FC = () => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const granularity = (searchParams.get('granularity') as GranularityType) || 'WEEK';
@@ -87,13 +99,36 @@ export const HeatmapPage: React.FC = () => {
   const [formInitialUserId, setFormInitialUserId] = useState<string | undefined>();
   const [formInitialStartDate, setFormInitialStartDate] = useState<string | undefined>();
   const [formInitialEndDate, setFormInitialEndDate] = useState<string | undefined>();
-  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [formInitialProjectId, setFormInitialProjectId] = useState<string | undefined>();
+  const [formInitialTaskId, setFormInitialTaskId] = useState<string | undefined>();
+  const [formInitialHoursPerDay, setFormInitialHoursPerDay] = useState<string | undefined>();
+  const [formInitialNotes, setFormInitialNotes] = useState<string | undefined>();
+  const [showAiSuggestions, setShowAiSuggestions] = useState(true);
+  const [appliedNotice, setAppliedNotice] = useState<string | null>(null);
 
   // Fetch AI Workload Balancing Suggestions
   const { data: balanceSuggestions } = useQuery<WorkloadBalanceSuggestion[]>({
     queryKey: ['aiBalanceSuggestions'],
     queryFn: () => apiClient.get<WorkloadBalanceSuggestion[]>('/api/v1/ai/balance-suggestions'),
     refetchInterval: 60_000,
+  });
+
+  // Apply Balance Suggestion mutation (One-Click Rebalance)
+  const applyBalanceMutation = useMutation({
+    mutationFn: (sug: WorkloadBalanceSuggestion) =>
+      apiClient.post<{ success: boolean; message: string }>('/api/v1/ai/balance-suggestions/apply', {
+        allocationId: sug.allocationId,
+        candidateUserId: sug.candidateUserId,
+        taskId: sug.taskId,
+      }),
+    onSuccess: (res) => {
+      setAppliedNotice(res.message || t('ai.applySuccess', 'Beban kerja berhasil diseimbangkan!'));
+      queryClient.invalidateQueries({ queryKey: ['capacity', 'heatmap'] });
+      queryClient.invalidateQueries({ queryKey: ['aiBalanceSuggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['allocations'] });
+      setTimeout(() => setAppliedNotice(null), 7000);
+    },
   });
 
   // Fetch heatmap with 30s background polling
@@ -185,11 +220,23 @@ export const HeatmapPage: React.FC = () => {
     setSelectedCellInfo({ userId, userName, userRole, cell });
   };
 
-  const openNewAllocationDrawer = (userId?: string, startDate?: string, endDate?: string) => {
+  const openNewAllocationDrawer = (
+    userId?: string,
+    startDate?: string,
+    endDate?: string,
+    projectId?: string,
+    taskId?: string,
+    hoursPerDay?: string,
+    notes?: string
+  ) => {
     setEditingAllocation(null);
     setFormInitialUserId(userId);
     setFormInitialStartDate(startDate);
     setFormInitialEndDate(endDate);
+    setFormInitialProjectId(projectId);
+    setFormInitialTaskId(taskId);
+    setFormInitialHoursPerDay(hoursPerDay);
+    setFormInitialNotes(notes);
     setIsAllocationDrawerOpen(true);
   };
 
@@ -338,30 +385,81 @@ export const HeatmapPage: React.FC = () => {
             </button>
           </div>
 
+          {appliedNotice && (
+            <div className="p-2 rounded bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs flex items-center justify-between font-medium">
+              <span>✓ {appliedNotice}</span>
+              <button
+                type="button"
+                onClick={() => setAppliedNotice(null)}
+                className="text-emerald-700 hover:text-emerald-900 ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {showAiSuggestions && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-amber-200/60">
-              {balanceSuggestions.map((sug) => (
+              {balanceSuggestions.map((sug, idx) => (
                 <div
-                  key={`${sug.overloadedUserId}-${sug.suggestedCandidateId}`}
-                  className="p-2.5 rounded bg-white border border-amber-200 text-xs space-y-1 shadow-2xs"
+                  key={`${sug.overloadedUserId}-${sug.candidateUserId}-${sug.allocationId || idx}`}
+                  className="p-3 rounded bg-white border border-amber-200 text-xs space-y-2 shadow-2xs"
                 >
                   <div className="flex items-center justify-between font-medium">
                     <span className="text-rose-700 font-semibold">
-                      {sug.overloadedUserName} ({sug.currentUtilizationPct}% beban)
+                      {sug.overloadedUserName} ({sug.overloadedUserUtilPct}% beban)
                     </span>
                     <span className="text-slate-400">➔</span>
                     <span className="text-emerald-700 font-semibold">
-                      {sug.suggestedCandidateName} ({sug.candidateAvailableHours}j luang)
+                      {sug.candidateUserName} ({sug.candidateUserUtilPct}% beban, {sug.candidateAvailableHours}j luang)
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600">{sug.suggestionReason}</p>
-                  <div className="pt-1 flex justify-end">
+
+                  {sug.projectCode && (
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-700 bg-slate-50 border border-slate-200 p-1.5 rounded">
+                      <span className="font-bold text-slate-900">[{sug.projectCode}]</span>
+                      {sug.taskTitle && <span className="text-slate-800">• {sug.taskTitle}</span>}
+                      {sug.hoursPerDay && (
+                        <span className="text-amber-800 font-semibold">({sug.hoursPerDay} jam/hari)</span>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-slate-600 leading-relaxed">{sug.suggestionText}</p>
+
+                  <div className="pt-1 flex items-center justify-end gap-2">
+                    {sug.allocationId && (
+                      <button
+                        type="button"
+                        disabled={applyBalanceMutation.isPending}
+                        onClick={() => applyBalanceMutation.mutate(sug)}
+                        className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-[11px] font-semibold transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                        title={t('ai.quickApplyTooltip', 'Langsung alihkan alokasi & task ini ke anggota terpilih')}
+                      >
+                        <span>✓</span>
+                        <span>
+                          {applyBalanceMutation.isPending
+                            ? t('common.loading', 'Menerapkan...')
+                            : t('ai.quickApply', 'Terapkan Otomatis')}
+                        </span>
+                      </button>
+                    )}
                     <button
                       type="button"
-                      onClick={() => openNewAllocationDrawer(sug.suggestedCandidateId)}
-                      className="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 text-[11px] font-medium transition-colors cursor-pointer"
+                      onClick={() =>
+                        openNewAllocationDrawer(
+                          sug.candidateUserId,
+                          sug.startDate,
+                          sug.endDate,
+                          sug.projectId,
+                          sug.taskId,
+                          sug.hoursPerDay ? String(sug.hoursPerDay) : undefined,
+                          `Penyeimbangan beban dari ${sug.overloadedUserName}`
+                        )
+                      }
+                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
                     >
-                      + {t('allocations.createButton', 'Tambah Alokasi')}
+                      {t('ai.adjustManually', 'Sesuaikan Alokasi...')}
                     </button>
                   </div>
                 </div>
@@ -452,6 +550,10 @@ export const HeatmapPage: React.FC = () => {
         initialUserId={formInitialUserId}
         initialStartDate={formInitialStartDate}
         initialEndDate={formInitialEndDate}
+        initialProjectId={formInitialProjectId}
+        initialTaskId={formInitialTaskId}
+        initialHoursPerDay={formInitialHoursPerDay}
+        initialNotes={formInitialNotes}
         editingAllocation={editingAllocation}
         onSuccess={() => refetch()}
       />

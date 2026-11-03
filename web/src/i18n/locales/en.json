@@ -447,6 +447,10 @@
     "balanceSuggestionsTitle": "AI Workload Balancing Suggestions",
     "balanceSuggestionsSubtitle": "Overloaded team members whose allocations can be rebalanced to underutilized peers.",
     "transferTo": "Can be balanced to",
-    "noSuggestions": "Team workload is balanced! No rebalancing suggestions at this time."
+    "noSuggestions": "Team workload is balanced! No rebalancing suggestions at this time.",
+    "quickApply": "Apply Automatically",
+    "quickApplyTooltip": "Directly transfer this allocation & task to the selected member",
+    "adjustManually": "Adjust Allocation...",
+    "applySuccess": "Workload successfully balanced!"
   }
 }

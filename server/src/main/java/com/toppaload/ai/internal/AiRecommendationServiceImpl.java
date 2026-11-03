@@ -1,19 +1,26 @@
 package com.toppaload.ai.internal;
 
 import com.toppaload.ai.AiRecommendationService;
+import com.toppaload.ai.ApplyBalanceSuggestionRequest;
+import com.toppaload.ai.ApplyBalanceSuggestionResponse;
 import com.toppaload.ai.AssigneeRecommendationDto;
 import com.toppaload.ai.TaskRecommendationResponse;
 import com.toppaload.ai.WorkloadBalanceSuggestionDto;
+import com.toppaload.audit.AuditRecorder;
 import com.toppaload.capacity.CapacityCell;
 import com.toppaload.capacity.CapacityQueryService;
 import com.toppaload.capacity.Granularity;
 import com.toppaload.capacity.HeatmapResponse;
 import com.toppaload.capacity.UserHeatmapRow;
+import com.toppaload.identity.AuthenticatedActor;
+import com.toppaload.identity.Role;
 import com.toppaload.identity.SystemSettingsDto;
 import com.toppaload.identity.SystemSettingsReader;
+import com.toppaload.identity.UserDirectory;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -34,15 +41,21 @@ class AiRecommendationServiceImpl implements AiRecommendationService {
     private final JdbcClient jdbc;
     private final CapacityQueryService capacityQueryService;
     private final SystemSettingsReader systemSettingsReader;
+    private final UserDirectory userDirectory;
+    private final AuditRecorder auditRecorder;
 
     AiRecommendationServiceImpl(
             JdbcClient jdbc,
             CapacityQueryService capacityQueryService,
-            SystemSettingsReader systemSettingsReader
+            SystemSettingsReader systemSettingsReader,
+            UserDirectory userDirectory,
+            AuditRecorder auditRecorder
     ) {
         this.jdbc = jdbc;
         this.capacityQueryService = capacityQueryService;
         this.systemSettingsReader = systemSettingsReader;
+        this.userDirectory = userDirectory;
+        this.auditRecorder = auditRecorder;
     }
 
     @Override
@@ -258,42 +271,195 @@ class AiRecommendationServiceImpl implements AiRecommendationService {
                     ? totalConfirmed.multiply(BigDecimal.valueOf(100)).divide(totalNetCap, 1, RoundingMode.HALF_UP)
                     : BigDecimal.ZERO;
 
+            BigDecimal availableHours = totalNetCap.subtract(totalConfirmed).max(BigDecimal.ZERO);
+
+            // Filter out non-developer accounts (e.g. SUPERVISOR and Bootstrap Admin) from receiving developer workload
+            boolean isEligibleCandidate = "MEMBER".equalsIgnoreCase(row.role())
+                    && !"Bootstrap Admin".equalsIgnoreCase(row.fullName())
+                    && !"Steelmaking AppDev".equalsIgnoreCase(row.fullName())
+                    && totalNetCap.compareTo(BigDecimal.ZERO) > 0;
+
             if (utilPct.compareTo(overThreshold) >= 0) {
-                overloaded.add(new UserCapacitySummaryWithName(row.userId(), row.fullName(), row.role(), utilPct));
-            } else if (utilPct.compareTo(underThreshold) <= 0) {
-                underutilized.add(new UserCapacitySummaryWithName(row.userId(), row.fullName(), row.role(), utilPct));
+                overloaded.add(new UserCapacitySummaryWithName(row.userId(), row.fullName(), row.role(), utilPct, availableHours));
+            } else if (isEligibleCandidate && utilPct.compareTo(underThreshold) <= 0) {
+                underutilized.add(new UserCapacitySummaryWithName(row.userId(), row.fullName(), row.role(), utilPct, availableHours));
             }
         }
 
         List<WorkloadBalanceSuggestionDto> suggestions = new ArrayList<>();
 
         for (UserCapacitySummaryWithName over : overloaded) {
-            for (UserCapacitySummaryWithName under : underutilized) {
-                String text = String.format(
-                        "Beban kerja %s mencapai %s%% (Overload). Pertimbangkan untuk mengalihkan alokasi atau task mendatang kepada %s yang saat ini berutilisasi %s%%.",
-                        over.fullName(), over.utilPct(), under.fullName(), under.utilPct()
-                );
+            // Find active allocations of the overloaded user in the current window
+            List<AllocationMeta> activeAllocs = jdbc.sql("""
+                SELECT a.id, a.project_id, p.code as project_code, p.name as project_name,
+                       a.task_id, t.title as task_title, a.hours_per_day, a.start_date, a.end_date
+                FROM allocations a
+                JOIN projects p ON p.id = a.project_id
+                LEFT JOIN tasks t ON t.id = a.task_id
+                WHERE a.user_id = :userId
+                  AND a.deleted_at IS NULL
+                  AND a.end_date >= :windowStart
+                  AND a.start_date <= :windowEnd
+                ORDER BY a.hours_per_day ASC
+            """)
+            .param("userId", over.userId())
+            .param("windowStart", today)
+            .param("windowEnd", end)
+            .query((rs, rowNum) -> new AllocationMeta(
+                    (UUID) rs.getObject("id"),
+                    (UUID) rs.getObject("project_id"),
+                    rs.getString("project_code"),
+                    rs.getString("project_name"),
+                    rs.getObject("task_id") != null ? (UUID) rs.getObject("task_id") : null,
+                    rs.getString("task_title"),
+                    rs.getBigDecimal("hours_per_day"),
+                    rs.getDate("start_date").toLocalDate(),
+                    rs.getDate("end_date").toLocalDate()
+            ))
+            .list();
 
-                suggestions.add(new WorkloadBalanceSuggestionDto(
-                        over.userId(),
-                        over.fullName(),
-                        over.utilPct(),
-                        under.userId(),
-                        under.fullName(),
-                        under.utilPct(),
-                        text,
-                        under.role()
-                ));
+            for (UserCapacitySummaryWithName under : underutilized) {
+                if (over.userId().equals(under.userId())) continue;
+
+                if (!activeAllocs.isEmpty()) {
+                    for (AllocationMeta alloc : activeAllocs) {
+                        String taskDesc = alloc.taskTitle() != null ? "Task '" + alloc.taskTitle() + "'" : "alokasi proyek";
+                        String text = String.format(
+                                "Beban kerja %s mencapai %s%% (Overload). Alihkan %s pada proyek [%s] (%s jam/hari) kepada %s yang saat ini berutilisasi %s%% (%s jam luang) untuk menyeimbangkan beban tim.",
+                                over.fullName(), over.utilPct(), taskDesc, alloc.projectCode(), alloc.hoursPerDay(),
+                                under.fullName(), under.utilPct(), under.availableHours()
+                        );
+
+                        suggestions.add(new WorkloadBalanceSuggestionDto(
+                                over.userId(),
+                                over.fullName(),
+                                over.utilPct(),
+                                under.userId(),
+                                under.fullName(),
+                                under.utilPct(),
+                                under.availableHours(),
+                                alloc.id(),
+                                alloc.projectId(),
+                                alloc.projectCode(),
+                                alloc.projectName(),
+                                alloc.taskId(),
+                                alloc.taskTitle(),
+                                alloc.hoursPerDay(),
+                                alloc.startDate(),
+                                alloc.endDate(),
+                                text,
+                                under.role()
+                        ));
+                    }
+                } else {
+                    String text = String.format(
+                            "Beban kerja %s mencapai %s%% (Overload). Pertimbangkan untuk mengalihkan alokasi mendatang kepada %s yang saat ini berutilisasi %s%% (%s jam luang).",
+                            over.fullName(), over.utilPct(), under.fullName(), under.utilPct(), under.availableHours()
+                    );
+
+                    suggestions.add(new WorkloadBalanceSuggestionDto(
+                            over.userId(),
+                            over.fullName(),
+                            over.utilPct(),
+                            under.userId(),
+                            under.fullName(),
+                            under.utilPct(),
+                            under.availableHours(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            today,
+                            end,
+                            text,
+                            under.role()
+                    ));
+                }
             }
         }
 
         return suggestions;
     }
 
+    @Override
+    @Transactional
+    public ApplyBalanceSuggestionResponse applyBalanceSuggestion(ApplyBalanceSuggestionRequest request) {
+        AuthenticatedActor actor = userDirectory.requireCurrentActor();
+        if (actor.role() != Role.ADMIN && actor.role() != Role.SUPERVISOR) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Hanya Admin atau Supervisor yang dapat menyetujui penyeimbangan alokasi.");
+        }
+
+        var candidateOpt = jdbc.sql("SELECT id, full_name FROM users WHERE id = :id AND deleted_at IS NULL AND active = TRUE")
+                .param("id", request.candidateUserId())
+                .query((rs, rowNum) -> Map.of(
+                        "id", (UUID) rs.getObject("id"),
+                        "name", rs.getString("full_name")
+                ))
+                .optional();
+        if (candidateOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Kandidat pengguna tidak ditemukan atau tidak aktif.");
+        }
+        String candidateName = (String) candidateOpt.get().get("name");
+
+        var allocOpt = jdbc.sql("SELECT id, user_id, project_id, task_id, hours_per_day, start_date, end_date FROM allocations WHERE id = :id AND deleted_at IS NULL")
+                .param("id", request.allocationId())
+                .query((rs, rowNum) -> Map.of(
+                        "id", (UUID) rs.getObject("id"),
+                        "userId", (UUID) rs.getObject("user_id"),
+                        "taskId", rs.getObject("task_id") != null ? (UUID) rs.getObject("task_id") : null
+                ))
+                .optional();
+        if (allocOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Alokasi tidak ditemukan: " + request.allocationId());
+        }
+
+        UUID oldUserId = (UUID) allocOpt.get().get("userId");
+
+        // 1. Update allocation target user
+        jdbc.sql("UPDATE allocations SET user_id = :userId, updated_at = NOW() WHERE id = :id")
+                .param("userId", request.candidateUserId())
+                .param("id", request.allocationId())
+                .update();
+
+        // 2. If allocation is linked to a task, reassign task as well
+        UUID taskIdToUpdate = request.taskId() != null ? request.taskId() : (UUID) allocOpt.get().get("taskId");
+        if (taskIdToUpdate != null) {
+            jdbc.sql("UPDATE tasks SET assignee_id = :assigneeId, updated_at = NOW() WHERE id = :taskId AND deleted_at IS NULL")
+                    .param("assigneeId", request.candidateUserId())
+                    .param("taskId", taskIdToUpdate)
+                    .update();
+        }
+
+        // 3. Record audit log
+        auditRecorder.record(
+                actor.userId(),
+                actor.email(),
+                "REBALANCE",
+                "ALLOCATION",
+                request.allocationId().toString(),
+                Map.of("previousUserId", oldUserId.toString()),
+                Map.of("newUserId", request.candidateUserId().toString(), "rebalancedBy", actor.email())
+        );
+
+        String message = String.format("Alokasi berhasil dialihkan kepada %s.", candidateName);
+        return new ApplyBalanceSuggestionResponse(
+                true,
+                message,
+                request.allocationId(),
+                request.candidateUserId(),
+                candidateName,
+                taskIdToUpdate
+        );
+    }
+
     private record TaskMeta(UUID id, String title, String description, BigDecimal estimatedHours, LocalDate startDate, LocalDate dueDate) {}
     private record UserMeta(UUID id, String email, String fullName, String role) {}
     private record SkillMeta(UUID userId, String skillName, String proficiencyLevel) {}
     private record UserCapacitySummary(BigDecimal netCapacityHours, BigDecimal confirmedHours, BigDecimal availableHours, BigDecimal currentUtilPct) {}
-    private record UserCapacitySummaryWithName(UUID userId, String fullName, String role, BigDecimal utilPct) {}
+    private record UserCapacitySummaryWithName(UUID userId, String fullName, String role, BigDecimal utilPct, BigDecimal availableHours) {}
+    private record AllocationMeta(UUID id, UUID projectId, String projectCode, String projectName, UUID taskId, String taskTitle, BigDecimal hoursPerDay, LocalDate startDate, LocalDate endDate) {}
 }
 

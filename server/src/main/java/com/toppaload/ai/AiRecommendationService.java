@@ -8,5 +8,6 @@ public interface AiRecommendationService {
     TaskRecommendationResponse getRecommendationsForTask(UUID taskId);
 
     List<WorkloadBalanceSuggestionDto> getTeamBalanceSuggestions();
-}
 
+    ApplyBalanceSuggestionResponse applyBalanceSuggestion(ApplyBalanceSuggestionRequest request);
+}

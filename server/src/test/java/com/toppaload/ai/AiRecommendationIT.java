@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -134,6 +135,60 @@ class AiRecommendationIT {
                         .with(auth("admin@toppaload.local", "ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    void applyBalanceSuggestionRebalancesAllocationAndTask() throws Exception {
+        UUID allocId = UUID.randomUUID();
+        UUID projId = jdbc.sql("SELECT project_id FROM tasks WHERE id = :id").param("id", taskId).query(UUID.class).single();
+
+        jdbc.sql("""
+            INSERT INTO allocations (id, user_id, project_id, task_id, start_date, end_date, hours_per_day, allocation_type, created_by)
+            VALUES (:id, :userId, :projId, :taskId, CURRENT_DATE, CURRENT_DATE + 5, 4.0, 'CONFIRMED', :adminId)
+        """)
+        .param("id", allocId)
+        .param("userId", userJava)
+        .param("projId", projId)
+        .param("taskId", taskId)
+        .param("adminId", adminId)
+        .update();
+
+        // Ensure task is initially assigned to userJava
+        jdbc.sql("UPDATE tasks SET assignee_id = :userId WHERE id = :id")
+                .param("userId", userJava)
+                .param("id", taskId)
+                .update();
+
+        String body = """
+            {
+                "allocationId": "%s",
+                "candidateUserId": "%s",
+                "taskId": "%s"
+            }
+        """.formatted(allocId, userReact, taskId);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/ai/balance-suggestions/apply")
+                        .with(csrf())
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(body)
+                        .with(auth("admin@toppaload.local", "ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.newUserId").value(userReact.toString()));
+
+        // Verify allocation was updated in database
+        UUID updatedAllocUser = jdbc.sql("SELECT user_id FROM allocations WHERE id = :id")
+                .param("id", allocId)
+                .query(UUID.class)
+                .single();
+        org.assertj.core.api.Assertions.assertThat(updatedAllocUser).isEqualTo(userReact);
+
+        // Verify task assignee was updated in database
+        UUID updatedTaskAssignee = jdbc.sql("SELECT assignee_id FROM tasks WHERE id = :id")
+                .param("id", taskId)
+                .query(UUID.class)
+                .single();
+        org.assertj.core.api.Assertions.assertThat(updatedTaskAssignee).isEqualTo(userReact);
     }
 }
 

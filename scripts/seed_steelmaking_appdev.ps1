@@ -271,7 +271,10 @@ foreach ($t in $tasksStapp) {
 
 # 6. Seed Allocations for November 2026
 Write-Host "Seeding Allocations for November 2026 (Creating Overloaded Ali & Underutilized Iqbal)..."
-# Clean existing allocations in window if any
+$existingAllocs = Invoke-RestMethod -Uri "$baseUrl/api/v1/allocations?from=2026-11-01&to=2026-11-30" -Method Get -WebSession $session
+foreach ($ea in $existingAllocs) {
+    Invoke-RestMethod -Uri "$baseUrl/api/v1/allocations/$($ea.id)" -Method Delete -Headers $headers -WebSession $session | Out-Null
+}
 $allocationsToCreate = @(
     # Ali Ramdani: 4.5h on CCM-T1 + 3.0h on CCM-T5 + 2.0h on STAPP-T3 = 9.5h/day -> 118.75% OVERLOADED!
     @{
@@ -378,16 +381,41 @@ foreach ($a in $allocationsToCreate) {
     Write-Host "Created allocation for user $($a.userId) on project $($a.projectId): $($a.hoursPerDay) hrs/day"
 }
 
-# 7. Seed Task Comments
-Write-Host "Seeding Task Comments..."
+# 7. Seed Task Comments dengan Penulis Otentik
+Write-Host "Seeding Task Comments as Masato Nakai & Ali Ramdani..."
+# Delete old comments if created under admin
+$existingComments = Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments" -Method Get -WebSession $session
+foreach ($ec in $existingComments) {
+    if ($ec.authorEmail -eq 'admin@toppaload.local') {
+        Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments/$($ec.id)" -Method Delete -Headers $headers -WebSession $session | Out-Null
+    }
+}
+
+# Comment 1: Masato Nakai
+$sessionMasato = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$loginMasato = @{ email = 'masato.nakai@steelmaking.corp'; password = 'password123' } | ConvertTo-Json
+Invoke-RestMethod -Uri "$baseUrl/api/v1/auth/login" -Method Post -ContentType 'application/json' -Body $loginMasato -WebSession $sessionMasato | Out-Null
+$xsrfMasato = $sessionMasato.Cookies.GetCookies((New-Object System.Uri($baseUrl))) | Where-Object { $_.Name -eq 'XSRF-TOKEN' }
+$headersMasato = @{ 'X-XSRF-TOKEN' = $xsrfMasato.Value }
+
 $comment1 = @{
     commentText = "Mohon pastikan kalibrasi sensor optik laser diatur pada toleransi +-2mm untuk slab grade SS400."
 } | ConvertTo-Json
-Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments" -Method Post -ContentType 'application/json' -Body $comment1 -Headers $headers -WebSession $session | Out-Null
+Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments" -Method Post -ContentType 'application/json' -Body $comment1 -Headers $headersMasato -WebSession $sessionMasato | Out-Null
+Write-Host "Posted comment 1 as Masato Nakai"
+
+# Comment 2: Ali Ramdani
+$sessionAli = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$loginAli = @{ email = 'ali.ramdani@steelmaking.corp'; password = 'password123' } | ConvertTo-Json
+Invoke-RestMethod -Uri "$baseUrl/api/v1/auth/login" -Method Post -ContentType 'application/json' -Body $loginAli -WebSession $sessionAli | Out-Null
+$xsrfAli = $sessionAli.Cookies.GetCookies((New-Object System.Uri($baseUrl))) | Where-Object { $_.Name -eq 'XSRF-TOKEN' }
+$headersAli = @{ 'X-XSRF-TOKEN' = $xsrfAli.Value }
 
 $comment2 = @{
     commentText = "Siap Pak Nakai, kami sudah memasang filter kalibrasi di edge device dan pengujian awal menunjukkan akurasi +-1.2mm."
 } | ConvertTo-Json
-Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments" -Method Post -ContentType 'application/json' -Body $comment2 -Headers $headers -WebSession $session | Out-Null
+Invoke-RestMethod -Uri "$baseUrl/api/v1/tasks/$($createdCcmTasks[0].id)/comments" -Method Post -ContentType 'application/json' -Body $comment2 -Headers $headersAli -WebSession $sessionAli | Out-Null
+Write-Host "Posted comment 2 as Ali Ramdani"
 
 Write-Host "ALL STEELMAKING APPDEV DEMO DATA SEEDED SUCCESSFULLY!"
+
