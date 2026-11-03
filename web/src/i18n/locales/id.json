@@ -13,6 +13,8 @@
     "projects": "Proyek & Task",
     "timesheet": "Timesheet",
     "allocations": "Alokasi",
+    "reports": "Laporan",
+    "forecasting": "Simulasi",
     "leaves": "Cuti & Libur",
     "settings": "Pengaturan"
   },
@@ -365,6 +367,38 @@
       "OVERLOAD_WARNING": "Peringatan Beban Lebih",
       "DEADLINE_APPROACHING": "Batas Waktu Mendekat",
       "LEAVE_STATUS_CHANGED": "Perubahan Status Cuti"
+    }
+  },
+  "reports": {
+    "title": "Laporan Utilisasi & Kapasitas",
+    "subtitle": "Analisis pemanfaatan jam kerja tim, komparasi alokasi vs aktual, dan ekspor multi-format.",
+    "exportCsv": "Ekspor CSV",
+    "exportExcel": "Ekspor Excel (.xlsx)",
+    "sendEmail": "Kirim Rekap Email",
+    "dateRange": "Rentang Tanggal",
+    "status": {
+      "overloaded": "Overload",
+      "optimal": "Optimal",
+      "underutilized": "Kurang Beban"
+    },
+    "kpi": {
+      "teamUtilization": "Rata-rata Utilisasi Tim",
+      "totalCapacity": "Kapasitas Bersih",
+      "totalAllocated": "Total Alokasi",
+      "totalActual": "Total Timesheet",
+      "overloadedMembers": "Anggota Overload"
+    },
+    "table": {
+      "title": "Rincian Beban Kerja per Anggota",
+      "totalMembers": "anggota terdaftar",
+      "member": "Anggota",
+      "role": "Role",
+      "capacity": "Kapasitas (Jam)",
+      "allocated": "Alokasi (Jam)",
+      "timesheet": "Timesheet (Jam)",
+      "utilization": "Utilisasi",
+      "status": "Status",
+      "overloadWeeks": "Minggu Overload"
     }
   }
 }

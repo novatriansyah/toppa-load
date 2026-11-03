@@ -13,6 +13,8 @@
     "projects": "Projects & Tasks",
     "timesheet": "Timesheet",
     "allocations": "Allocations",
+    "reports": "Reports",
+    "forecasting": "Simulation",
     "leaves": "Leaves & Holidays",
     "settings": "Settings"
   },
@@ -365,6 +367,38 @@
       "OVERLOAD_WARNING": "Overload Warning",
       "DEADLINE_APPROACHING": "Deadline Approaching",
       "LEAVE_STATUS_CHANGED": "Leave Status Changed"
+    }
+  },
+  "reports": {
+    "title": "Utilization & Capacity Reports",
+    "subtitle": "Analysis of team work hours utilization, allocation vs actual comparison, and multi-format exports.",
+    "exportCsv": "Export CSV",
+    "exportExcel": "Export Excel (.xlsx)",
+    "sendEmail": "Send Summary Email",
+    "dateRange": "Date Range",
+    "status": {
+      "overloaded": "Overloaded",
+      "optimal": "Optimal",
+      "underutilized": "Underutilized"
+    },
+    "kpi": {
+      "teamUtilization": "Average Team Utilization",
+      "totalCapacity": "Net Capacity",
+      "totalAllocated": "Total Allocation",
+      "totalActual": "Total Timesheet",
+      "overloadedMembers": "Overloaded Members"
+    },
+    "table": {
+      "title": "Workload Breakdown by Member",
+      "totalMembers": "registered members",
+      "member": "Member",
+      "role": "Role",
+      "capacity": "Capacity (Hours)",
+      "allocated": "Allocation (Hours)",
+      "timesheet": "Timesheet (Hours)",
+      "utilization": "Utilization",
+      "status": "Status",
+      "overloadWeeks": "Overload Weeks"
     }
   }
 }

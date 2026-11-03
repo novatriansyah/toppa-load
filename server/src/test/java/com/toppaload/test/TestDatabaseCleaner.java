@@ -8,6 +8,10 @@ public final class TestDatabaseCleaner {
     }
 
     public static void cleanAll(JdbcClient jdbc) {
+        jdbc.sql("DELETE FROM scheduled_reports").update();
+        jdbc.sql("DELETE FROM scenario_allocations").update();
+        jdbc.sql("DELETE FROM scenarios").update();
+        jdbc.sql("DELETE FROM calendar_feed_tokens").update();
         jdbc.sql("DELETE FROM audit_logs").update();
         jdbc.sql("DELETE FROM notifications").update();
         jdbc.sql("DELETE FROM saved_views").update();

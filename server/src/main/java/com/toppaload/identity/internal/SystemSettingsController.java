@@ -44,7 +44,7 @@ class SystemSettingsController implements SystemSettingsReader {
     @GetMapping
     public SystemSettingsDto currentSettings() {
         return jdbc.sql("""
-            SELECT underutilized_threshold_pct, overloaded_threshold_pct, work_timezone, teams_webhook_url
+            SELECT underutilized_threshold_pct, overloaded_threshold_pct, work_timezone, teams_webhook_url, ai_recommendations_enabled
             FROM system_settings
             WHERE id = 1
         """)
@@ -52,7 +52,8 @@ class SystemSettingsController implements SystemSettingsReader {
                 rs.getBigDecimal("underutilized_threshold_pct"),
                 rs.getBigDecimal("overloaded_threshold_pct"),
                 rs.getString("work_timezone"),
-                rs.getString("teams_webhook_url")
+                rs.getString("teams_webhook_url"),
+                rs.getBoolean("ai_recommendations_enabled")
         ))
         .single();
     }
@@ -75,6 +76,7 @@ class SystemSettingsController implements SystemSettingsReader {
         }
 
         SystemSettingsDto before = currentSettings();
+        boolean aiEnabled = dto.aiRecommendationsEnabled() == null || dto.aiRecommendationsEnabled();
 
         jdbc.sql("""
             UPDATE system_settings
@@ -82,6 +84,7 @@ class SystemSettingsController implements SystemSettingsReader {
                 overloaded_threshold_pct = :over,
                 work_timezone = :tz,
                 teams_webhook_url = :teamsUrl,
+                ai_recommendations_enabled = :aiEnabled,
                 updated_by = :userId,
                 updated_at = NOW()
             WHERE id = 1
@@ -90,6 +93,7 @@ class SystemSettingsController implements SystemSettingsReader {
         .param("over", dto.overloadedThresholdPct())
         .param("tz", dto.workTimezone())
         .param("teamsUrl", dto.teamsWebhookUrl())
+        .param("aiEnabled", aiEnabled)
         .param("userId", actor.userId())
         .update();
 
@@ -98,12 +102,14 @@ class SystemSettingsController implements SystemSettingsReader {
         beforeMap.put("overloadedThresholdPct", before.overloadedThresholdPct());
         beforeMap.put("workTimezone", before.workTimezone());
         beforeMap.put("teamsWebhookUrl", before.teamsWebhookUrl());
+        beforeMap.put("aiRecommendationsEnabled", before.aiRecommendationsEnabled());
 
         Map<String, Object> afterMap = new HashMap<>();
         afterMap.put("underutilizedThresholdPct", dto.underutilizedThresholdPct());
         afterMap.put("overloadedThresholdPct", dto.overloadedThresholdPct());
         afterMap.put("workTimezone", dto.workTimezone());
         afterMap.put("teamsWebhookUrl", dto.teamsWebhookUrl());
+        afterMap.put("aiRecommendationsEnabled", aiEnabled);
 
         auditRecorder.record(
                 actor.userId(),

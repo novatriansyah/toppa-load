@@ -10,9 +10,14 @@ public record SystemSettingsDto(
         @NotNull @DecimalMin("0.0") @DecimalMax("999.9") BigDecimal underutilizedThresholdPct,
         @NotNull @DecimalMin("0.1") @DecimalMax("999.9") BigDecimal overloadedThresholdPct,
         @NotBlank String workTimezone,
-        String teamsWebhookUrl
+        String teamsWebhookUrl,
+        Boolean aiRecommendationsEnabled
 ) {
     public SystemSettingsDto(BigDecimal underutilizedThresholdPct, BigDecimal overloadedThresholdPct, String workTimezone) {
-        this(underutilizedThresholdPct, overloadedThresholdPct, workTimezone, null);
+        this(underutilizedThresholdPct, overloadedThresholdPct, workTimezone, null, true);
+    }
+
+    public SystemSettingsDto(BigDecimal underutilizedThresholdPct, BigDecimal overloadedThresholdPct, String workTimezone, String teamsWebhookUrl) {
+        this(underutilizedThresholdPct, overloadedThresholdPct, workTimezone, teamsWebhookUrl, true);
     }
 }
