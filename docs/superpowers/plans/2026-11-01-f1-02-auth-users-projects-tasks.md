@@ -150,9 +150,10 @@ git commit -m "feat(identity): implement OIDC email allowlist, RBAC, SPA CSRF, a
 
 ---
 
-### Task 3: Modul `project` — CRUD Proyek & Task Teraudit dengan Pencarian & Soft-Delete
+### Task 3: Modul `project` — CRUD Proyek & Task Teraudit dengan Pencarian, Soft-Delete, dan Detail Task (Progress %, Rentang Tanggal, Assignee)
 
 **Files:**
+- Create: `server/src/main/resources/db/migration/V2__task_progress_dates_assignee.sql`
 - Create: `server/src/main/java/com/toppaload/project/ProjectSummary.java`, `TaskSummary.java`, `ProjectLookup.java`
 - Create: `server/src/main/java/com/toppaload/project/internal/ProjectEntity.java`, `TaskEntity.java`, `ProjectRepository.java`, `TaskRepository.java`, `ProjectService.java`, `ProjectController.java`, `TaskController.java`
 - Test: `server/src/test/java/com/toppaload/project/ProjectAndTaskIT.java`
@@ -162,13 +163,14 @@ git commit -m "feat(identity): implement OIDC email allowlist, RBAC, SPA CSRF, a
 - Produces:
   - `interface ProjectLookup` (`ProjectSummary requireActiveProject(UUID projectId)`, `Optional<TaskSummary> findActiveTask(UUID taskId)`, `ProjectSummary findOrCreateActiveByCode(String code, String name, LocalDate startDate, LocalDate endDate, UUID ownerId)`)
   - Endpoints `GET/POST /api/v1/projects`, `PUT/DELETE /api/v1/projects/{id}`, `GET/POST /api/v1/projects/{projectId}/tasks`, `PUT/DELETE /api/v1/tasks/{id}`
+  - Detail Task memuat: `title`, `description`, `status`, `priority`, `estimatedHours`, `startDate`, `dueDate`, `progressPercent` (0..100%), `assigneeId`, `assigneeName`.
 
-- [ ] **Step 1: Tulis failing integration test `ProjectAndTaskIT`**
+- [ ] **Step 1: Tulis migration Flyway `V2__task_progress_dates_assignee.sql` dan failing integration test `ProjectAndTaskIT`**
 
 Uji di `ProjectAndTaskIT`:
-1. `SUPERVISOR` berhasil membuat proyek beserta 3 task, mencari berdasarkan `q` & `status`, dan tercatat di `audit_logs`.
-2. `MEMBER` ditolak `403` saat `POST /api/v1/projects` atau `DELETE /api/v1/projects/{id}`, namun diizinkan membuat/mengubah status `Task` pada proyek aktif.
-3. Validasi menolak `endDate < startDate` (`400`) dan menolak kode proyek duplikat *case-insensitive* (`409 Conflict` `ProblemDetail` dengan pesan Bahasa Indonesia jelas).
+1. `SUPERVISOR` berhasil membuat proyek beserta task lengkap (`startDate`, `dueDate`, `estimatedHours`, `progressPercent = 50`, `assigneeId`), mencari berdasarkan `q` & `status`, dan tercatat di `audit_logs`.
+2. `MEMBER` ditolak `403` saat `POST /api/v1/projects` atau `DELETE /api/v1/projects/{id}`, namun diizinkan membuat/mengubah status, progress %, dan due date `Task` pada proyek aktif.
+3. Validasi menolak `endDate < startDate` pada proyek (`400`), menolak `dueDate < startDate` pada task (`400`), menolak `progressPercent < 0` atau `> 100` (`400`), dan menolak kode proyek duplikat *case-insensitive* (`409 Conflict` `ProblemDetail` dengan pesan Bahasa Indonesia jelas).
 4. `DELETE /api/v1/projects/{id}` mengisi `deleted_at` (data masih ada di DB untuk histori, tidak muncul di `GET /api/v1/projects`).
 
 - [ ] **Step 2: Jalankan test untuk memverifikasi gagal**
@@ -189,7 +191,7 @@ Expected: PASS
 
 ```bash
 git add server/
-git commit -m "feat(project): add audited Project and Task CRUD with RBAC, filters, and soft-delete"
+git commit -m "feat(project): add audited Project and Task CRUD with progress percent, dates, assignee, and RBAC"
 ```
 
 ---
