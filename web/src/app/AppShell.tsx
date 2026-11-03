@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { AuthenticatedActor } from '../features/auth/useCurrentUser';
 
 interface SystemInfo {
   appName?: string;
@@ -64,9 +65,17 @@ const navItems: NavItem[] = [
   },
 ];
 
+function getInitials(name?: string): string {
+  if (!name) return 'TL';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export const AppShell: React.FC = () => {
   const { t } = useTranslation();
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [currentUser, setCurrentUser] = useState<AuthenticatedActor | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,6 +89,18 @@ export const AppShell: React.FC = () => {
       .catch(() => {
         // Fallback gracefully in disconnected or mock test environments
       });
+
+    fetch('/api/v1/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: AuthenticatedActor | null) => {
+        if (isMounted && data) {
+          setCurrentUser(data);
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully in disconnected or unauthenticated environments
+      });
+
     return () => {
       isMounted = false;
     };
@@ -129,9 +150,27 @@ export const AppShell: React.FC = () => {
             title={t('header.profile')}
           >
             <div className="w-6 h-6 rounded bg-slate-800 text-white font-medium text-[11px] flex items-center justify-center">
-              TL
+              {getInitials(currentUser?.fullName)}
             </div>
-            <span className="text-slate-700 font-medium hidden md:inline">Internal</span>
+            <div className="hidden md:flex flex-col text-left">
+              <span className="text-slate-800 font-medium leading-tight">
+                {currentUser?.fullName || 'Internal'}
+              </span>
+              {currentUser?.role && (
+                <span className="text-[10px] text-slate-400 font-mono leading-none">
+                  {currentUser.role}
+                </span>
+              )}
+            </div>
+            <a
+              href="/logout"
+              className="text-[11px] text-slate-400 hover:text-rose-600 ml-1 px-1 py-0.5 rounded transition-colors"
+              title={t('auth.logout')}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </a>
           </div>
         </div>
       </header>

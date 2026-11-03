@@ -1,6 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
 import { AppShell } from './AppShell';
+import { AuthGuard } from '../features/auth/AuthGuard';
+import { LoginPage } from '../features/auth/LoginPage';
+import { ProjectsPage } from '../features/projects/ProjectsPage';
+import { SettingsPage } from '../features/settings/SettingsPage';
 
 const WorkloadView: React.FC = () => (
   <div className="space-y-3">
@@ -20,20 +24,6 @@ const WorkloadView: React.FC = () => (
         <span className="w-2 h-2 rounded-full bg-slate-400" />
         <span>Heatmap akan aktif setelah data alokasi dan jam kerja dimuat (Fase 1 Minggu 4–5).</span>
       </div>
-    </div>
-  </div>
-);
-
-const ProjectsView: React.FC = () => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-      <div>
-        <h1 className="text-base font-semibold text-slate-900">Proyek & Task</h1>
-        <p className="text-xs text-slate-500">Daftar proyek aktif dan input task cepat</p>
-      </div>
-    </div>
-    <div className="p-4 bg-white rounded border border-slate-200 text-xs text-slate-600">
-      <span>Daftar proyek dan laci tugas (Fase 1 Minggu 2–3).</span>
     </div>
   </div>
 );
@@ -66,31 +56,25 @@ const LeavesView: React.FC = () => (
   </div>
 );
 
-const SettingsView: React.FC = () => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-      <div>
-        <h1 className="text-base font-semibold text-slate-900">Pengaturan Sistem</h1>
-        <p className="text-xs text-slate-500">Konfigurasi ambang beban kerja, pengguna, dan audit</p>
-      </div>
-    </div>
-    <div className="p-4 bg-white rounded border border-slate-200 text-xs text-slate-600">
-      <span>Pengaturan ambang utilisasi dan hak akses tim (Fase 1 Minggu 2 & 6).</span>
-    </div>
-  </div>
-);
-
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
-    element: <AppShell />,
+    element: (
+      <AuthGuard>
+        <AppShell />
+      </AuthGuard>
+    ),
     children: [
       { index: true, element: <Navigate to="/beban-kerja" replace /> },
       { path: 'beban-kerja', element: <WorkloadView /> },
-      { path: 'proyek', element: <ProjectsView /> },
+      { path: 'proyek', element: <ProjectsPage /> },
       { path: 'alokasi', element: <AllocationsView /> },
       { path: 'cuti', element: <LeavesView /> },
-      { path: 'pengaturan', element: <SettingsView /> },
+      { path: 'pengaturan', element: <SettingsPage /> },
       { path: '*', element: <Navigate to="/beban-kerja" replace /> },
     ],
   },
