@@ -55,6 +55,14 @@
     "loginTitle": "Masuk ke Sistem",
     "loginWithGoogle": "Masuk dengan Google Workspace",
     "loginWithMicrosoft": "Masuk dengan Microsoft 365",
+    "orPassword": "atau masuk dengan kata sandi",
+    "emailLabel": "Alamat Email",
+    "passwordLabel": "Kata Sandi",
+    "loginButton": "Masuk",
+    "loggingIn": "Memverifikasi...",
+    "invalidCredentials": "Email atau kata sandi tidak valid.",
+    "devHintTitle": "Akses Pengembang / Break-Glass:",
+    "devHintDesc": "Akun bawaan lokal:",
     "allowlistOnly": "Akses Terbatas",
     "allowlistNotice": "Hanya akun yang terdaftar dalam allowlist yang dapat mengakses sistem ini.",
     "logout": "Keluar",
@@ -102,7 +110,10 @@
       "monFri": "Senin – Jumat",
       "hoursInvalid": "Jam kerja per hari harus antara 0.1 dan 24 jam",
       "daysInvalid": "Pilih minimal satu hari kerja",
-      "requiredFields": "Email dan Nama Lengkap wajib diisi"
+      "requiredFields": "Email dan Nama Lengkap wajib diisi",
+      "passwordEditLabel": "Ubah Kata Sandi Lokal (Opsional)",
+      "passwordCreateLabel": "Kata Sandi Lokal (Opsional untuk Break-Glass / Dev)",
+      "passwordEditPlaceholder": "Biarkan kosong jika tidak ingin diubah"
     },
     "system": {
       "thresholdTitle": "Ambang Beban Kerja",

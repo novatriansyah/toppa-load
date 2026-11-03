@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
@@ -36,6 +38,11 @@ class SecurityConfig {
     }
 
     @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         tokenRepository.setCookiePath("/");
@@ -47,6 +54,7 @@ class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers(
                                 PathPatternRequestMatcher.pathPattern("/api/v1/system/**"),
+                                PathPatternRequestMatcher.pathPattern("/api/v1/auth/login"),
                                 PathPatternRequestMatcher.pathPattern("/api/v1/e2e/**"),
                                 PathPatternRequestMatcher.pathPattern("/api/v1/calendar/feed/**")
                         )
@@ -67,6 +75,7 @@ class SecurityConfig {
                                 "/favicon.ico",
                                 "/login/**",
                                 "/oauth2/**",
+                                "/api/v1/auth/login",
                                 "/api/v1/system/**",
                                 "/api/v1/e2e/**",
                                 "/api/v1/calendar/feed/**",

@@ -57,6 +57,9 @@ class UserEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
@@ -175,6 +178,14 @@ class UserEntity {
 
     void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    String getPasswordHash() {
+        return passwordHash;
+    }
+
+    void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     Instant getDeletedAt() {

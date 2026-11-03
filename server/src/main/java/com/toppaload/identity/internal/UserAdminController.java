@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,11 +37,13 @@ class UserAdminController {
     private final UserRepository userRepository;
     private final UserDirectory userDirectory;
     private final AuditRecorder auditRecorder;
+    private final PasswordEncoder passwordEncoder;
 
-    UserAdminController(UserRepository userRepository, UserDirectory userDirectory, AuditRecorder auditRecorder) {
+    UserAdminController(UserRepository userRepository, UserDirectory userDirectory, AuditRecorder auditRecorder, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userDirectory = userDirectory;
         this.auditRecorder = auditRecorder;
+        this.passwordEncoder = passwordEncoder;
     }
 
     record CreateUserRequest(
@@ -57,7 +60,9 @@ class UserAdminController {
 
             BigDecimal workHoursPerDay,
 
-            List<Integer> workDays
+            List<Integer> workDays,
+
+            String password
     ) {}
 
     record PatchUserRequest(
@@ -65,7 +70,8 @@ class UserAdminController {
             Role role,
             Boolean active,
             BigDecimal workHoursPerDay,
-            List<Integer> workDays
+            List<Integer> workDays,
+            String password
     ) {}
 
     @GetMapping
@@ -101,6 +107,9 @@ class UserAdminController {
         );
         user.setActive(true);
         user.setEmailNotifications(true);
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPasswordHash(passwordEncoder.encode(request.password().trim()));
+        }
 
         UserEntity saved = userRepository.save(user);
 
@@ -153,6 +162,9 @@ class UserAdminController {
         if (request.workDays() != null) {
             user.setWorkDays(request.workDays());
         }
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPasswordHash(passwordEncoder.encode(request.password().trim()));
+        }
 
         UserEntity saved = userRepository.save(user);
 
@@ -190,7 +202,8 @@ class UserAdminController {
                 user.isActive(),
                 user.getWorkHoursPerDay(),
                 user.getWorkDays(),
-                user.isEmailNotifications()
+                user.isEmailNotifications(),
+                user.getPasswordHash() != null && !user.getPasswordHash().isBlank()
         );
     }
 

@@ -12,8 +12,22 @@ public record UserSummary(
     boolean active,
     BigDecimal workHoursPerDay,
     List<Integer> workDays,
-    boolean emailNotifications
+    boolean emailNotifications,
+    boolean hasPassword
 ) {
+    public UserSummary(
+        UUID id,
+        String email,
+        String fullName,
+        Role role,
+        boolean active,
+        BigDecimal workHoursPerDay,
+        List<Integer> workDays,
+        boolean emailNotifications
+    ) {
+        this(id, email, fullName, role, active, workHoursPerDay, workDays, emailNotifications, false);
+    }
+
     public UserSummary(
         UUID id,
         String email,
@@ -23,6 +37,6 @@ public record UserSummary(
         BigDecimal workHoursPerDay,
         List<Integer> workDays
     ) {
-        this(id, email, fullName, role, active, workHoursPerDay, workDays, true);
+        this(id, email, fullName, role, active, workHoursPerDay, workDays, true, false);
     }
 }

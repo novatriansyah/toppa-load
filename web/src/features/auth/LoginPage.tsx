@@ -1,11 +1,21 @@
-import { Navigate, useLocation } from 'react-router';
+import React, { useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from './useCurrentUser';
+import { apiClient, HttpError } from '../../shared/api/httpClient';
 
 export const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: user, isLoading } = useCurrentUser();
+
+  const [email, setEmail] = useState('admin@toppaload.local');
+  const [password, setPassword] = useState('admin123');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/beban-kerja';
 
@@ -13,9 +23,31 @@ export const LoginPage: React.FC = () => {
     return <Navigate to={from} replace />;
   }
 
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      await apiClient.post('/api/v1/auth/login', {
+        email: email.trim(),
+        password,
+      });
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      navigate(from, { replace: true });
+    } catch (err: unknown) {
+      if (err instanceof HttpError) {
+        setErrorMessage(err.problem?.detail || err.message || t('auth.invalidCredentials'));
+      } else {
+        setErrorMessage(t('auth.invalidCredentials'));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-slate-50 p-4">
-      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-md p-6 shadow-xs space-y-6">
+      <div className="w-full max-w-sm bg-white border border-slate-200 rounded-md p-6 shadow-xs space-y-5">
         {/* Brand Header */}
         <div className="space-y-1.5 text-center">
           <div className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded bg-slate-100 text-[11px] font-mono text-slate-600 border border-slate-200 mb-1">
@@ -35,7 +67,7 @@ export const LoginPage: React.FC = () => {
         <div className="space-y-2.5">
           <a
             href="/oauth2/authorization/microsoft"
-            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-[#2f2f2f] text-white rounded text-xs font-medium hover:bg-[#1f1f1f] transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs"
+            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-[#2f2f2f] text-white rounded text-xs font-medium hover:bg-[#1f1f1f] transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 21 21">
               <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -48,7 +80,7 @@ export const LoginPage: React.FC = () => {
 
           <a
             href="/oauth2/authorization/google"
-            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-white text-slate-700 border border-slate-300 rounded text-xs font-medium hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs"
+            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-white text-slate-700 border border-slate-300 rounded text-xs font-medium hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs cursor-pointer"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
@@ -70,6 +102,74 @@ export const LoginPage: React.FC = () => {
             </svg>
             <span>{t('auth.loginWithGoogle', 'Masuk dengan Google')}</span>
           </a>
+        </div>
+
+        {/* Divider */}
+        <div className="relative flex items-center justify-center my-1">
+          <div className="border-t border-slate-200 w-full" />
+          <span className="bg-white px-2.5 text-[10px] text-slate-400 absolute uppercase tracking-wider font-medium select-none">
+            {t('auth.orPassword', 'atau masuk dengan kata sandi')}
+          </span>
+        </div>
+
+        {/* Email & Password Form */}
+        <form onSubmit={handlePasswordLogin} className="space-y-3">
+          {errorMessage && (
+            <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-800 rounded text-xs">
+              {errorMessage}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-[11px] font-medium text-slate-700 mb-1">
+              {t('auth.emailLabel', 'Alamat Email')}
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@toppaload.local"
+              className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-medium text-slate-700 mb-1">
+              {t('auth.passwordLabel', 'Kata Sandi')}
+            </label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 font-mono"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isSubmitting ? t('auth.loggingIn', 'Memverifikasi...') : t('auth.loginButton', 'Masuk')}
+          </button>
+        </form>
+
+        {/* Developer / Break-Glass Access Tip */}
+        <div className="p-2.5 rounded bg-amber-50 border border-amber-200/80 text-[11px] text-amber-900 space-y-1">
+          <div className="font-semibold flex items-center gap-1">
+            <span>💡</span>
+            <span>{t('auth.devHintTitle', 'Akses Pengembang / Break-Glass:')}</span>
+          </div>
+          <p className="text-slate-600 leading-normal">
+            {t('auth.devHintDesc', 'Akun bawaan lokal:')}{' '}
+            <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-950 font-bold">
+              admin@toppaload.local
+            </code>{' '}
+            / <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200 text-amber-950 font-bold">admin123</code>
+          </p>
         </div>
 
         {/* Security / Allowlist Note */}

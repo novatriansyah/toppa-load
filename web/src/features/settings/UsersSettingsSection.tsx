@@ -12,6 +12,7 @@ export interface UserSummary {
   active: boolean;
   workHoursPerDay: number;
   workDays: number[];
+  hasPassword?: boolean;
 }
 
 interface CreateUserPayload {
@@ -20,6 +21,7 @@ interface CreateUserPayload {
   role: UserRole;
   workHoursPerDay: number;
   workDays: number[];
+  password?: string;
 }
 
 interface PatchUserPayload {
@@ -28,6 +30,7 @@ interface PatchUserPayload {
   active?: boolean;
   workHoursPerDay?: number;
   workDays?: number[];
+  password?: string;
 }
 
 const DAYS_OF_WEEK = [
@@ -55,6 +58,7 @@ export const UsersSettingsSection: React.FC = () => {
   const [active, setActive] = useState(true);
   const [workHours, setWorkHours] = useState('8');
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]);
+  const [password, setPassword] = useState('');
 
   const { data: users, isLoading, error } = useQuery<UserSummary[]>({
     queryKey: ['users'],
@@ -101,6 +105,7 @@ export const UsersSettingsSection: React.FC = () => {
     setActive(true);
     setWorkHours('8');
     setSelectedDays([1, 2, 3, 4, 5]);
+    setPassword('');
     setFormError(null);
     setIsAddModalOpen(true);
   };
@@ -113,6 +118,7 @@ export const UsersSettingsSection: React.FC = () => {
     setActive(u.active);
     setWorkHours(String(u.workHoursPerDay));
     setSelectedDays(u.workDays || [1, 2, 3, 4, 5]);
+    setPassword('');
     setFormError(null);
     setIsAddModalOpen(true);
   };
@@ -144,6 +150,8 @@ export const UsersSettingsSection: React.FC = () => {
       return;
     }
 
+    const pwd = password.trim() ? password.trim() : undefined;
+
     if (editingUser) {
       patchMutation.mutate({
         id: editingUser.id,
@@ -153,6 +161,7 @@ export const UsersSettingsSection: React.FC = () => {
           active,
           workHoursPerDay: hoursNum,
           workDays: selectedDays,
+          password: pwd,
         },
       });
     } else {
@@ -166,6 +175,7 @@ export const UsersSettingsSection: React.FC = () => {
         role,
         workHoursPerDay: hoursNum,
         workDays: selectedDays,
+        password: pwd,
       });
     }
   };
@@ -359,6 +369,26 @@ export const UsersSettingsSection: React.FC = () => {
                   <option value="SUPERVISOR">SUPERVISOR</option>
                   <option value="ADMIN">ADMIN</option>
                 </select>
+              </div>
+
+              {/* Optional Local Password */}
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">
+                  {editingUser
+                    ? t('settings.users.passwordEditLabel', 'Ubah Kata Sandi Lokal (Opsional)')
+                    : t('settings.users.passwordCreateLabel', 'Kata Sandi Lokal (Opsional untuk Break-Glass / Dev)')}
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={
+                    editingUser
+                      ? t('settings.users.passwordEditPlaceholder', 'Biarkan kosong jika tidak ingin diubah')
+                      : '••••••••'
+                  }
+                  className="w-full px-2.5 py-1.5 rounded border border-slate-200 focus:border-slate-400 focus:outline-none font-mono"
+                />
               </div>
 
               {/* Active Toggle (Edit mode only) */}

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +22,22 @@ class BootstrapAdminInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final AuditRecorder auditRecorder;
+    private final PasswordEncoder passwordEncoder;
     private final String bootstrapAdminEmail;
+    private final String bootstrapAdminPassword;
 
     BootstrapAdminInitializer(
             UserRepository userRepository,
             AuditRecorder auditRecorder,
-            @Value("${app.security.bootstrap-admin-email:admin@toppaload.local}") String bootstrapAdminEmail
+            PasswordEncoder passwordEncoder,
+            @Value("${app.security.bootstrap-admin-email:admin@toppaload.local}") String bootstrapAdminEmail,
+            @Value("${app.security.bootstrap-admin-password:admin123}") String bootstrapAdminPassword
     ) {
         this.userRepository = userRepository;
         this.auditRecorder = auditRecorder;
+        this.passwordEncoder = passwordEncoder;
         this.bootstrapAdminEmail = bootstrapAdminEmail;
+        this.bootstrapAdminPassword = bootstrapAdminPassword;
     }
 
     @Override
@@ -39,8 +46,12 @@ class BootstrapAdminInitializer implements ApplicationRunner {
         String email = bootstrapAdminEmail != null && !bootstrapAdminEmail.isBlank()
                 ? bootstrapAdminEmail.trim().toLowerCase()
                 : "admin@toppaload.local";
+        String defaultPassword = bootstrapAdminPassword != null && !bootstrapAdminPassword.isBlank()
+                ? bootstrapAdminPassword
+                : "admin123";
 
-        if (userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(email).isEmpty()) {
+        var existingOpt = userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(email);
+        if (existingOpt.isEmpty()) {
             log.info("Creating bootstrap admin account with email: {}", email);
             UserEntity admin = new UserEntity(
                     email,
@@ -51,6 +62,7 @@ class BootstrapAdminInitializer implements ApplicationRunner {
             );
             admin.setActive(true);
             admin.setEmailNotifications(true);
+            admin.setPasswordHash(passwordEncoder.encode(defaultPassword));
             UserEntity saved = userRepository.save(admin);
 
             auditRecorder.record(
@@ -66,6 +78,13 @@ class BootstrapAdminInitializer implements ApplicationRunner {
                             "source", "BOOTSTRAP"
                     )
             );
+        } else {
+            UserEntity existing = existingOpt.get();
+            if (existing.getPasswordHash() == null || existing.getPasswordHash().isBlank()) {
+                log.info("Setting default password hash for existing bootstrap admin: {}", email);
+                existing.setPasswordHash(passwordEncoder.encode(defaultPassword));
+                userRepository.save(existing);
+            }
         }
     }
 }
