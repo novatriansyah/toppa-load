@@ -46,7 +46,7 @@ class JpaUserDirectory implements UserDirectory {
         }
 
         String identifier = extractIdentifier(auth);
-        UserEntity user = findUser(identifier);
+        UserEntity user = findUser(userRepository, identifier);
         if (user == null || !user.isActive()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found or inactive");
         }
@@ -98,7 +98,7 @@ class JpaUserDirectory implements UserDirectory {
         return auth.getName();
     }
 
-    private UserEntity findUser(String identifier) {
+    static UserEntity findUser(UserRepository userRepository, String identifier) {
         if (identifier == null || identifier.isBlank()) {
             return null;
         }

@@ -37,7 +37,7 @@ class BootstrapAdminInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         String email = bootstrapAdminEmail != null && !bootstrapAdminEmail.isBlank()
-                ? bootstrapAdminEmail.trim()
+                ? bootstrapAdminEmail.trim().toLowerCase()
                 : "admin@toppaload.local";
 
         if (userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(email).isEmpty()) {

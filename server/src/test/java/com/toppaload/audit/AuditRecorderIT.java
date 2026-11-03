@@ -142,4 +142,14 @@ class AuditRecorderIT {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].entityId").value("task-1"));
     }
+
+    @Test
+    @WithMockUser(username = "member@kantor.id", roles = "MEMBER")
+    void memberRoleIsForbiddenFromListingAuditLogs() throws Exception {
+        jdbc.sql("INSERT INTO users (email, full_name, role) VALUES ('member@kantor.id', 'Member User', 'MEMBER')")
+                .update();
+
+        mockMvc.perform(get("/api/v1/audit-logs"))
+                .andExpect(status().isForbidden());
+    }
 }

@@ -111,6 +111,35 @@ class IdentitySecurityIT {
 
     @Test
     @WithMockUser(username = "admin@toppaload.local", roles = "ADMIN")
+    void adminCreateUserWithoutCsrfTokenReturns403Forbidden() throws Exception {
+        String body = """
+            {
+                "email": "no-csrf@kantor.id",
+                "fullName": "No Csrf User",
+                "role": "MEMBER"
+            }
+        """;
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "member@kantor.id", roles = "MEMBER")
+    void memberRoleCannotAccessAuditLogsReturns403() throws Exception {
+        jdbc.sql("""
+            INSERT INTO users (email, full_name, role, active)
+            VALUES ('member@kantor.id', 'Regular Member', 'MEMBER', true)
+        """).update();
+
+        mockMvc.perform(get("/api/v1/audit-logs"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@toppaload.local", roles = "ADMIN")
     void adminCanCreateAndPatchUserWithAuditLog() throws Exception {
         String createJson = """
             {

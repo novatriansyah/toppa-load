@@ -44,7 +44,7 @@ class ActiveUserVerificationFilter extends OncePerRequestFilter {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             String identifier = JpaUserDirectory.extractIdentifier(auth);
-            UserEntity user = findUser(identifier);
+            UserEntity user = JpaUserDirectory.findUser(userRepository, identifier);
             if (user == null || !user.isActive()) {
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -59,21 +59,5 @@ class ActiveUserVerificationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private UserEntity findUser(String identifier) {
-        if (identifier == null || identifier.isBlank()) {
-            return null;
-        }
-        try {
-            UUID id = UUID.fromString(identifier);
-            var byId = userRepository.findByIdAndDeletedAtIsNull(id);
-            if (byId.isPresent()) {
-                return byId.get();
-            }
-        } catch (IllegalArgumentException ignored) {
-            // not a UUID
-        }
-        return userRepository.findByEmailIgnoreCaseAndDeletedAtIsNull(identifier).orElse(null);
     }
 }
