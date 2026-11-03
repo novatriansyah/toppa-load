@@ -1,60 +1,11 @@
-import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
 import { AppShell } from './AppShell';
 import { AuthGuard } from '../features/auth/AuthGuard';
 import { LoginPage } from '../features/auth/LoginPage';
 import { ProjectsPage } from '../features/projects/ProjectsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
-
-const WorkloadView: React.FC = () => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-      <div>
-        <h1 className="text-base font-semibold text-slate-900">Beban Kerja Tim (Orang × Minggu)</h1>
-        <p className="text-xs text-slate-500">Matriks perencanaan kapasitas bersih dan utilisasi kerja</p>
-      </div>
-      <div className="flex items-center space-x-2">
-        <span className="text-xs font-mono px-2 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700">
-          ISO 8601 · Sen-Jum
-        </span>
-      </div>
-    </div>
-    <div className="p-4 bg-white rounded border border-slate-200 text-xs text-slate-600">
-      <div className="flex items-center space-x-2 text-slate-500">
-        <span className="w-2 h-2 rounded-full bg-slate-400" />
-        <span>Heatmap akan aktif setelah data alokasi dan jam kerja dimuat (Fase 1 Minggu 4–5).</span>
-      </div>
-    </div>
-  </div>
-);
-
-const AllocationsView: React.FC = () => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-      <div>
-        <h1 className="text-base font-semibold text-slate-900">Alokasi Tim</h1>
-        <p className="text-xs text-slate-500">Penugasan waktu dan validasi batas beban</p>
-      </div>
-    </div>
-    <div className="p-4 bg-white rounded border border-slate-200 text-xs text-slate-600">
-      <span>Form alokasi dan pratinjau overlap kapasitas (Fase 1 Minggu 4).</span>
-    </div>
-  </div>
-);
-
-const LeavesView: React.FC = () => (
-  <div className="space-y-3">
-    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-      <div>
-        <h1 className="text-base font-semibold text-slate-900">Cuti & Libur Nasional</h1>
-        <p className="text-xs text-slate-500">Pengurangan kapasitas dan kalender hari libur</p>
-      </div>
-    </div>
-    <div className="p-4 bg-white rounded border border-slate-200 text-xs text-slate-600">
-      <span>Pencatatan cuti dan impor kalender libur nasional (Fase 1 Minggu 5).</span>
-    </div>
-  </div>
-);
+import { HeatmapPage } from '../features/heatmap/HeatmapPage';
+import { LeavesAndHolidaysPage } from '../features/leaves/LeavesAndHolidaysPage';
 
 export const router = createBrowserRouter([
   {
@@ -70,10 +21,10 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Navigate to="/beban-kerja" replace /> },
-      { path: 'beban-kerja', element: <WorkloadView /> },
+      { path: 'beban-kerja', element: <HeatmapPage /> },
       { path: 'proyek', element: <ProjectsPage /> },
-      { path: 'alokasi', element: <AllocationsView /> },
-      { path: 'cuti', element: <LeavesView /> },
+      { path: 'alokasi', element: <Navigate to="/beban-kerja" replace /> },
+      { path: 'cuti', element: <LeavesAndHolidaysPage /> },
       { path: 'pengaturan', element: <SettingsPage /> },
       { path: '*', element: <Navigate to="/beban-kerja" replace /> },
     ],

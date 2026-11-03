@@ -36,7 +36,7 @@ class AuditRecorderIT {
 
     @BeforeEach
     void cleanUp() {
-        jdbc.sql("DELETE FROM audit_logs").update();
+        com.toppaload.test.TestDatabaseCleaner.cleanAll(jdbc);
         jdbc.sql("DELETE FROM users").update();
     }
 

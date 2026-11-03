@@ -68,6 +68,7 @@
 }
 
 /* Accessible diagonal hatch pattern for overloaded status */
+.bg-stripe-overloaded,
 .cell-overloaded-pattern {
   background-image: repeating-linear-gradient(
     135deg,

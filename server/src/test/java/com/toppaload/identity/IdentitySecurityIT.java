@@ -55,8 +55,7 @@ class IdentitySecurityIT {
 
     @BeforeEach
     void setup() {
-        jdbc.sql("DELETE FROM audit_logs").update();
-        jdbc.sql("DELETE FROM users WHERE email != 'admin@toppaload.local'").update();
+        com.toppaload.test.TestDatabaseCleaner.cleanAll(jdbc);
         Integer count = jdbc.sql("SELECT COUNT(*) FROM users WHERE email = 'admin@toppaload.local'").query(Integer.class).single();
         if (count == null || count == 0) {
             jdbc.sql("""

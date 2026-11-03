@@ -53,10 +53,7 @@ class ProjectAndTaskIT {
 
     @BeforeEach
     void setup() {
-        jdbc.sql("DELETE FROM audit_logs").update();
-        jdbc.sql("DELETE FROM tasks").update();
-        jdbc.sql("DELETE FROM projects").update();
-        jdbc.sql("DELETE FROM users WHERE email NOT IN ('admin@toppaload.local')").update();
+        com.toppaload.test.TestDatabaseCleaner.cleanAll(jdbc);
 
         supervisorId = UUID.randomUUID();
         jdbc.sql("""
