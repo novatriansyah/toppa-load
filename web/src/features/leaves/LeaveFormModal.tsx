@@ -160,10 +160,10 @@ export const LeaveFormModal: React.FC<LeaveFormModalProps> = ({ isOpen, onClose 
                 onChange={(e) => setLeaveType(e.target.value as any)}
                 className="w-full px-2.5 py-1.5 border border-slate-300 rounded bg-white text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none"
               >
-                <option value="ANNUAL">Cuti Tahunan (ANNUAL)</option>
-                <option value="SICK">Cuti Sakit (SICK)</option>
-                <option value="UNPAID">Cuti Tanpa Gaji (UNPAID)</option>
-                <option value="OTHER">Lainnya (OTHER)</option>
+                <option value="ANNUAL">{t('leaves.typeAnnual', 'Cuti Tahunan (ANNUAL)')}</option>
+                <option value="SICK">{t('leaves.typeSick', 'Cuti Sakit (SICK)')}</option>
+                <option value="UNPAID">{t('leaves.typeUnpaid', 'Cuti Tanpa Gaji (UNPAID)')}</option>
+                <option value="OTHER">{t('leaves.typeOther', 'Lainnya (OTHER)')}</option>
               </select>
             </div>
 
@@ -182,9 +182,9 @@ export const LeaveFormModal: React.FC<LeaveFormModalProps> = ({ isOpen, onClose 
                 }}
                 className="w-full px-2.5 py-1.5 border border-slate-300 rounded bg-white text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none"
               >
-                <option value="FULL">Cuti Penuh (1 Hari / 8j)</option>
-                <option value="HALF_AM">Setengah Hari Pagi (4j)</option>
-                <option value="HALF_PM">Setengah Hari Siang (4j)</option>
+                <option value="FULL">{t('leaves.portionFull', 'Cuti Penuh (1 Hari / 8j)')}</option>
+                <option value="HALF_AM">{t('leaves.portionHalfAm', 'Setengah Hari Pagi (4j)')}</option>
+                <option value="HALF_PM">{t('leaves.portionHalfPm', 'Setengah Hari Siang (4j)')}</option>
               </select>
             </div>
           </div>

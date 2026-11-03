@@ -300,12 +300,12 @@ export const ForecastingPage: React.FC = () => {
               }`}
           >
             <span>{sc.name}</span>
-            <span className="text-2xs opacity-75">({sc.allocationsCount} alokasi)</span>
+            <span className="text-2xs opacity-75">{t('forecasting.allocationsCount', { count: sc.allocationsCount, defaultValue: `(${sc.allocationsCount} alokasi)` })}</span>
             {getStatusBadge(sc.status)}
           </button>
         ))}
         {scenarios.length === 0 && !isLoadingScenarios && (
-          <div className="text-xs text-slate-400 py-2">Belum ada skenario simulasi. Klik tombol di atas untuk membuat.</div>
+          <div className="text-xs text-slate-400 py-2">{t('forecasting.emptyScenarios', 'Belum ada skenario simulasi. Klik tombol di atas untuk membuat.')}</div>
         )}
       </div>
 
@@ -319,9 +319,9 @@ export const ForecastingPage: React.FC = () => {
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">{currentScenario.name}</h2>
                 {getStatusBadge(currentScenario.status)}
               </div>
-              <p className="text-xs text-slate-500 mt-1">{currentScenario.description || 'Tidak ada deskripsi'}</p>
+              <p className="text-xs text-slate-500 mt-1">{currentScenario.description || t('common.noDescription', 'Tidak ada deskripsi')}</p>
               <div className="text-2xs text-slate-400 mt-2">
-                Dibuat oleh <span className="font-medium text-slate-600 dark:text-slate-300">{currentScenario.createdByName}</span>
+                {t('common.createdBy', 'Dibuat oleh')} <span className="font-medium text-slate-600 dark:text-slate-300">{currentScenario.createdByName}</span>
               </div>
             </div>
 
@@ -334,7 +334,7 @@ export const ForecastingPage: React.FC = () => {
                 <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                + Tambah Alokasi Percobaan
+                + {t('forecasting.addDraftAllocation', 'Tambah Alokasi Percobaan')}
               </button>
 
               <button
@@ -377,7 +377,7 @@ export const ForecastingPage: React.FC = () => {
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-                <p className="text-xs font-medium text-slate-500">Utilisasi Tim (Hasil Simulasi)</p>
+                <p className="text-xs font-medium text-slate-500">{t('forecasting.simulatedUtilization', 'Utilisasi Tim (Hasil Simulasi)')}</p>
                 <div className="mt-2 flex items-baseline gap-2">
                   <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                     {simulation.simulatedOverallUtilPct}%
@@ -386,25 +386,25 @@ export const ForecastingPage: React.FC = () => {
                     (+{(simulation.simulatedOverallUtilPct - simulation.baselineOverallUtilPct).toFixed(1)}%)
                   </span>
                 </div>
-                <span className="text-2xs text-slate-400">Termasuk alokasi skenario</span>
+                <span className="text-2xs text-slate-400">{t('forecasting.scenarioIncluded', 'Termasuk alokasi skenario')}</span>
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-                <p className="text-xs font-medium text-slate-500">Overload (Baseline)</p>
+                <p className="text-xs font-medium text-slate-500">{t('forecasting.baselineOverload', 'Overload (Baseline)')}</p>
                 <p className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-300">
-                  {simulation.baselineOverloadedCount} <span className="text-xs font-normal text-slate-400">anggota</span>
+                  {simulation.baselineOverloadedCount} <span className="text-xs font-normal text-slate-400">{t('common.members', 'anggota')}</span>
                 </p>
               </div>
 
               <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-                <p className="text-xs font-medium text-slate-500">Overload (Hasil Simulasi)</p>
+                <p className="text-xs font-medium text-slate-500">{t('forecasting.simulatedOverload', 'Overload (Hasil Simulasi)')}</p>
                 <div className="mt-2 flex items-baseline gap-2">
                   <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                    {simulation.simulatedOverloadedCount} <span className="text-xs font-normal text-slate-400">anggota</span>
+                    {simulation.simulatedOverloadedCount} <span className="text-xs font-normal text-slate-400">{t('common.members', 'anggota')}</span>
                   </p>
                   {simulation.simulatedOverloadedCount > simulation.baselineOverloadedCount && (
                     <span className="px-1.5 py-0.5 rounded text-2xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
-                      +{simulation.simulatedOverloadedCount - simulation.baselineOverloadedCount} baru
+                      {t('forecasting.newOverloaded', { count: simulation.simulatedOverloadedCount - simulation.baselineOverloadedCount, defaultValue: `+${simulation.simulatedOverloadedCount - simulation.baselineOverloadedCount} baru` })}
                     </span>
                   )}
                 </div>
@@ -416,26 +416,26 @@ export const ForecastingPage: React.FC = () => {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Daftar Alokasi Percobaan ({draftAllocations.length})
+                {t('forecasting.draftAllocationsTitle', { count: draftAllocations.length, defaultValue: `Daftar Alokasi Percobaan (${draftAllocations.length})` })}
               </h3>
             </div>
 
             {draftAllocations.length === 0 ? (
               <div className="p-6 text-center text-xs text-slate-400">
-                Belum ada alokasi percobaan pada skenario ini. Klik "+ Tambah Alokasi Percobaan" untuk mulai merancang.
+                {t('forecasting.emptyDraftAllocations', 'Belum ada alokasi percobaan pada skenario ini. Klik "+ Tambah Alokasi Percobaan" untuk mulai merancang.')}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 font-semibold">
                     <tr>
-                      <th className="px-4 py-3">Nama Anggota</th>
-                      <th className="px-4 py-3">Proyek Hipotetis</th>
-                      <th className="px-4 py-3">Tanggal Mulai</th>
-                      <th className="px-4 py-3">Tanggal Selesai</th>
-                      <th className="px-4 py-3 text-right">Jam / Hari</th>
-                      <th className="px-4 py-3">Catatan</th>
-                      <th className="px-4 py-3 text-center">Aksi</th>
+                      <th className="px-4 py-3">{t('forecasting.memberName', 'Nama Anggota')}</th>
+                      <th className="px-4 py-3">{t('forecasting.hypotheticalProject', 'Proyek Hipotetis')}</th>
+                      <th className="px-4 py-3">{t('forecasting.startDate', 'Tanggal Mulai')}</th>
+                      <th className="px-4 py-3">{t('forecasting.endDate', 'Tanggal Selesai')}</th>
+                      <th className="px-4 py-3 text-right">{t('forecasting.hoursPerDayHeader', 'Jam / Hari')}</th>
+                      <th className="px-4 py-3">{t('forecasting.notes', 'Catatan')}</th>
+                      <th className="px-4 py-3 text-center">{t('forecasting.actions', 'Aksi')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -445,16 +445,16 @@ export const ForecastingPage: React.FC = () => {
                         <td className="px-4 py-3 text-indigo-600 dark:text-indigo-400 font-medium">{a.projectName}</td>
                         <td className="px-4 py-3 font-mono">{a.startDate}</td>
                         <td className="px-4 py-3 font-mono">{a.endDate}</td>
-                        <td className="px-4 py-3 text-right font-mono font-semibold">{a.hoursPerDay} jam</td>
+                        <td className="px-4 py-3 text-right font-mono font-semibold">{a.hoursPerDay} {t('common.hoursUnit', 'jam')}</td>
                         <td className="px-4 py-3 text-slate-500">{a.notes || '-'}</td>
                         <td className="px-4 py-3 text-center">
                           <button
                             onClick={() => deleteAllocMutation.mutate(a.id)}
                             disabled={currentScenario.status === 'PROMOTED'}
                             className="text-rose-600 hover:text-rose-700 disabled:opacity-30"
-                            title="Hapus"
+                            title={t('forecasting.deleteTooltip', 'Hapus')}
                           >
-                            Hapus
+                            {t('common.delete', 'Hapus')}
                           </button>
                         </td>
                       </tr>
@@ -471,10 +471,10 @@ export const ForecastingPage: React.FC = () => {
               <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Komparasi Proyeksi Beban Kerja per Anggota
+                    {t('forecasting.comparisonTitle', 'Komparasi Proyeksi Beban Kerja per Anggota')}
                   </h3>
                   <p className="text-2xs text-slate-400 mt-0.5">
-                    Periode: {simulation.startDate} s/d {simulation.endDate}
+                    {t('forecasting.periodLabel', { start: simulation.startDate, end: simulation.endDate, defaultValue: `Periode: ${simulation.startDate} s/d ${simulation.endDate}` })}
                   </p>
                 </div>
               </div>
@@ -483,13 +483,13 @@ export const ForecastingPage: React.FC = () => {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 font-semibold">
                     <tr>
-                      <th className="px-4 py-3">Nama Anggota</th>
-                      <th className="px-4 py-3 text-right">Kapasitas Bersih</th>
-                      <th className="px-4 py-3 text-right">Jam Baseline</th>
-                      <th className="px-4 py-3 text-right">Jam Delta</th>
-                      <th className="px-4 py-3 text-right">Total Jam Simulasi</th>
-                      <th className="px-4 py-3">Utilisasi (Baseline → Simulasi)</th>
-                      <th className="px-4 py-3 text-center">Dampak Overload</th>
+                      <th className="px-4 py-3">{t('forecasting.memberName', 'Nama Anggota')}</th>
+                      <th className="px-4 py-3 text-right">{t('forecasting.netCapacity', 'Kapasitas Bersih')}</th>
+                      <th className="px-4 py-3 text-right">{t('forecasting.baselineHours', 'Jam Baseline')}</th>
+                      <th className="px-4 py-3 text-right">{t('forecasting.deltaHours', 'Jam Delta')}</th>
+                      <th className="px-4 py-3 text-right">{t('forecasting.totalSimulatedHours', 'Total Jam Simulasi')}</th>
+                      <th className="px-4 py-3">{t('forecasting.utilizationProgression', 'Utilisasi (Baseline → Simulasi)')}</th>
+                      <th className="px-4 py-3 text-center">{t('forecasting.overloadImpact', 'Dampak Overload')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -499,16 +499,16 @@ export const ForecastingPage: React.FC = () => {
                           {u.userName}
                         </td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
-                          {u.capacityHours} jam
+                          {u.capacityHours} {t('common.hoursUnit', 'jam')}
                         </td>
                         <td className="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-300">
-                          {u.baselineAllocatedHours} jam
+                          {u.baselineAllocatedHours} {t('common.hoursUnit', 'jam')}
                         </td>
                         <td className="px-4 py-3 text-right font-mono font-semibold text-indigo-600 dark:text-indigo-400">
-                          +{u.simulatedDeltaHours} jam
+                          +{u.simulatedDeltaHours} {t('common.hoursUnit', 'jam')}
                         </td>
                         <td className="px-4 py-3 text-right font-mono font-bold text-slate-900 dark:text-white">
-                          {u.totalSimulatedHours} jam
+                          {u.totalSimulatedHours} {t('common.hoursUnit', 'jam')}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -551,13 +551,13 @@ export const ForecastingPage: React.FC = () => {
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Buat Skenario Simulasi Baru</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">{t('forecasting.newScenario', 'Buat Skenario Simulasi Baru')}</h3>
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Skenario *</label>
+                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.hypotheticalProjectName', 'Nama Skenario *')}</label>
                 <input
                   type="text"
-                  placeholder="Contoh: Ekspansi Proyek Retail Q1"
+                  placeholder={t('forecasting.scenarioNamePlaceholder', 'Contoh: Ekspansi Proyek Retail Q1')}
                   value={newScenarioName}
                   onChange={(e) => setNewScenarioName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
@@ -598,16 +598,16 @@ export const ForecastingPage: React.FC = () => {
       {isAddAllocOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Tambah Alokasi Percobaan</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">{t('forecasting.addDraftAllocation', 'Tambah Alokasi Percobaan')}</h3>
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Pilih Anggota Tim *</label>
+                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.selectMember', 'Pilih Anggota Tim *')}</label>
                 <select
                   value={allocUserId}
                   onChange={(e) => setAllocUserId(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
                 >
-                  <option value="">-- Pilih Anggota --</option>
+                  <option value="">{t('forecasting.chooseMember', '-- Pilih Anggota --')}</option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name} ({m.role})
@@ -617,7 +617,7 @@ export const ForecastingPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Proyek Hipotetis *</label>
+                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.hypotheticalProjectName', 'Nama Proyek Hipotetis *')}</label>
                 <input
                   type="text"
                   placeholder="Contoh: Migration to Cloud / New App"
@@ -629,7 +629,7 @@ export const ForecastingPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal Mulai *</label>
+                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.startDate', 'Tanggal Mulai *')}</label>
                   <input
                     type="date"
                     value={allocStartDate}
@@ -638,7 +638,7 @@ export const ForecastingPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal Selesai *</label>
+                  <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.endDate', 'Tanggal Selesai *')}</label>
                   <input
                     type="date"
                     value={allocEndDate}
@@ -649,7 +649,7 @@ export const ForecastingPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Jam Alokasi / Hari (1-24) *</label>
+                <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">{t('forecasting.hoursPerDayField', 'Jam Alokasi / Hari (1-24) *')}</label>
                 <input
                   type="number"
                   step="0.5"

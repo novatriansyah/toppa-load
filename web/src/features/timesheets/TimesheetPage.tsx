@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../shared/api/httpClient';
 import { useCurrentUser } from '../auth/useCurrentUser';
 import {
@@ -19,6 +20,7 @@ function getMondayOfDate(d: Date): string {
 }
 
 export const TimesheetPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
   const isSupervisorOrAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERVISOR';
@@ -38,15 +40,16 @@ export const TimesheetPage: React.FC = () => {
     const start = new Date(selectedMonday);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-    return `${start.toLocaleDateString('id-ID', {
+    const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
+    return `${start.toLocaleDateString(locale, {
       day: 'numeric',
       month: 'short',
-    })} – ${end.toLocaleDateString('id-ID', {
+    })} – ${end.toLocaleDateString(locale, {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     })}`;
-  }, [selectedMonday]);
+  }, [selectedMonday, i18n.language]);
 
   const shiftWeek = (direction: -1 | 1) => {
     const current = new Date(selectedMonday);
@@ -136,9 +139,9 @@ export const TimesheetPage: React.FC = () => {
       {/* Top Header */}
       <div className="pb-3 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-base font-semibold text-slate-900">Timesheet Mingguan</h1>
+          <h1 className="text-base font-semibold text-slate-900">{t('timesheet.pageTitle', 'Timesheet Beban Kerja')}</h1>
           <p className="text-xs text-slate-500">
-            Pencatatan jam kerja aktual per proyek & perbandingan terhadap estimasi dan alokasi.
+            {t('timesheet.pageSubtitle', 'Pencatatan jam kerja aktual per proyek & perbandingan terhadap estimasi dan alokasi.')}
           </p>
         </div>
 
@@ -154,7 +157,7 @@ export const TimesheetPage: React.FC = () => {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Pengisian & Tinjauan
+              {t('timesheet.tabFillReview', 'Pengisian & Tinjauan')}
             </button>
             <button
               type="button"
@@ -165,7 +168,7 @@ export const TimesheetPage: React.FC = () => {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <span>Antrean Persetujuan</span>
+              <span>{t('timesheet.tabPending', 'Antrean Persetujuan')}</span>
               {pendingApprovals.length > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-blue-600 text-white text-[10px] font-bold">
                   {pendingApprovals.length}
@@ -180,11 +183,11 @@ export const TimesheetPage: React.FC = () => {
         /* Pending Approvals List */
         <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3 shadow-xs">
           <h2 className="text-sm font-semibold text-slate-900">
-            Daftar Timesheet Menunggu Persetujuan
+            {t('timesheet.pendingTitle', 'Daftar Timesheet Menunggu Persetujuan')}
           </h2>
           {pendingApprovals.length === 0 ? (
             <div className="py-8 text-center text-slate-400 text-xs italic">
-              Tidak ada timesheet yang sedang menunggu persetujuan saat ini.
+              {t('timesheet.noPending', 'Tidak ada timesheet yang sedang menunggu persetujuan saat ini.')}
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -196,8 +199,11 @@ export const TimesheetPage: React.FC = () => {
                   <div>
                     <div className="font-semibold text-xs text-slate-900">{sub.userFullName}</div>
                     <div className="text-[11px] text-slate-500 font-mono">
-                      Minggu mulai: {sub.weekStartDate} · Diajukan pada:{' '}
-                      {sub.submittedAt ? new Date(sub.submittedAt).toLocaleString('id-ID') : '-'}
+                      {t('timesheet.weekStarting', {
+                        date: sub.weekStartDate,
+                        time: sub.submittedAt ? new Date(sub.submittedAt).toLocaleString() : '-',
+                        defaultValue: `Minggu mulai: ${sub.weekStartDate} · Diajukan pada: ${sub.submittedAt ? new Date(sub.submittedAt).toLocaleString() : '-'}`
+                      })}
                     </div>
                   </div>
                   <button
@@ -209,7 +215,7 @@ export const TimesheetPage: React.FC = () => {
                     }}
                     className="px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors cursor-pointer"
                   >
-                    Buka untuk Ditinjau →
+                    {t('timesheet.openForReview', 'Buka untuk Ditinjau →')}
                   </button>
                 </div>
               ))}
@@ -227,7 +233,7 @@ export const TimesheetPage: React.FC = () => {
                 type="button"
                 onClick={() => shiftWeek(-1)}
                 className="px-2 py-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-700 font-mono"
-                title="Minggu Sebelumnya"
+                title={t('timesheet.previousWeek', 'Minggu Sebelumnya')}
               >
                 ‹
               </button>
@@ -236,13 +242,13 @@ export const TimesheetPage: React.FC = () => {
                 onClick={jumpToCurrentWeek}
                 className="px-2.5 py-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-700 font-medium"
               >
-                Minggu Ini
+                {t('timesheet.thisWeek', 'Minggu Ini')}
               </button>
               <button
                 type="button"
                 onClick={() => shiftWeek(1)}
                 className="px-2 py-1 border border-slate-300 rounded hover:bg-slate-50 text-slate-700 font-mono"
-                title="Minggu Berikutnya"
+                title={t('timesheet.nextWeek', 'Minggu Berikutnya')}
               >
                 ›
               </button>
@@ -252,14 +258,14 @@ export const TimesheetPage: React.FC = () => {
             {/* Supervisor Member Selector */}
             {isSupervisorOrAdmin && (
               <div className="flex items-center space-x-2 text-xs">
-                <span className="text-slate-500">Lihat Pengguna:</span>
+                <span className="text-slate-500">{t('timesheet.viewUser', 'Lihat Pengguna:')}</span>
                 <select
                   value={selectedUserId || currentUser?.userId || ''}
                   onChange={(e) => setSelectedUserId(e.target.value)}
                   className="border border-slate-300 rounded px-2.5 py-1 text-xs font-medium bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
                 >
                   <option value={currentUser?.userId}>
-                    {currentUser?.fullName} (Timesheet Saya)
+                    {currentUser?.fullName} {t('timesheet.myTimesheet', '(Timesheet Saya)')}
                   </option>
                   {users
                     .filter((u) => u.id !== currentUser?.userId)

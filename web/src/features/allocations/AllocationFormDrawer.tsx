@@ -365,7 +365,9 @@ export const AllocationFormDrawer: React.FC<AllocationFormDrawerProps> = ({
                   onChange={(e) => setHoursPerDay(e.target.value)}
                   className="w-full px-2.5 py-1.5 pr-8 border border-slate-300 rounded font-mono text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none"
                 />
-                <span className="absolute right-2.5 top-1.5 text-slate-400 font-mono">jam</span>
+                <span className="absolute right-2.5 top-1.5 text-slate-400 font-mono">
+                  {t('common.hoursUnit', 'jam')}
+                </span>
               </div>
             </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   WeeklyTimesheetData,
   TimeEntryInput,
@@ -38,14 +39,18 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
   readOnly,
   isSupervisorOrAdmin,
 }) => {
+  const { t, i18n } = useTranslation();
+
   // Generate 7 days of the week starting Monday
   const weekDays = useMemo(() => {
     const monday = new Date(weekStartDate);
+    const dayNamesId = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const dayNamesEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayNames = i18n.language === 'id' ? dayNamesId : dayNamesEn;
     return Array.from({ length: 7 }).map((_, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
-      const dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
       return {
         dateStr,
         dayName: dayNames[i],
@@ -53,7 +58,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         isWeekend: i >= 5,
       };
     });
-  }, [weekStartDate]);
+  }, [weekStartDate, i18n.language]);
 
   // Fetch available projects for adding new rows
   const { data: projects = [] } = useQuery<ProjectSummary[]>({
@@ -82,7 +87,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
           projectCode: e.projectCode,
           projectName: e.projectName,
           taskId: e.taskId || '',
-          taskTitle: e.taskTitle || '— Tanpa Task Spesifik —',
+          taskTitle: e.taskTitle || t('timesheet.generalAllocation', '— Alokasi Umum —'),
           dailyHours: {},
         });
       }
@@ -138,7 +143,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         projectCode: p.code,
         projectName: p.name,
         taskId: '',
-        taskTitle: '— Alokasi Umum —',
+        taskTitle: t('timesheet.generalAllocation', '— Alokasi Umum —'),
         dailyHours: {},
       },
     ]);
@@ -176,7 +181,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
   };
 
   const handleSubmitClick = async () => {
-    if (confirm('Ajukan timesheet minggu ini untuk persetujuan supervisor?')) {
+    if (confirm(t('timesheet.confirmSubmit', 'Ajukan timesheet minggu ini untuk persetujuan supervisor?'))) {
       setIsSubmitting(true);
       try {
         await onSave(getEntryInputs());
@@ -206,25 +211,25 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
       case 'APPROVED':
         return (
           <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold text-xs">
-            ✓ Disetujui (Approved)
+            {t('timesheet.statusApproved', '✓ Disetujui (Approved)')}
           </span>
         );
       case 'SUBMITTED':
         return (
           <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-semibold text-xs">
-            ⏳ Diajukan (Menunggu Persetujuan)
+            {t('timesheet.statusSubmitted', '⏳ Diajukan (Menunggu Persetujuan)')}
           </span>
         );
       case 'RETURNED':
         return (
           <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300 font-semibold text-xs">
-            ↩ Dikembalikan (Perlu Revisi)
+            {t('timesheet.statusReturned', '↩ Dikembalikan (Perlu Revisi)')}
           </span>
         );
       default:
         return (
           <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-medium text-xs">
-            ✎ Draf (Belum Diajukan)
+            {t('timesheet.statusDraft', '✎ Draf (Belum Diajukan)')}
           </span>
         );
     }
@@ -237,13 +242,13 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         <div>
           <div className="flex items-center space-x-2">
             <h2 className="text-sm font-semibold text-slate-900">
-              Timesheet Mingguan: {submission.userFullName}
+              {t('timesheet.weeklyTitle', { name: submission.userFullName, defaultValue: `Timesheet Mingguan: ${submission.userFullName}` })}
             </h2>
             {getStatusBadge()}
           </div>
           {submission.reviewerNote && (
             <p className="text-xs text-rose-700 mt-1 font-medium bg-rose-50 p-1.5 rounded border border-rose-200">
-              Catatan Supervisor: &quot;{submission.reviewerNote}&quot;
+              {t('timesheet.supervisorNote', 'Catatan Supervisor:')} &quot;{submission.reviewerNote}&quot;
             </p>
           )}
         </div>
@@ -256,7 +261,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 onClick={handleAddRow}
                 className="px-2.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer"
               >
-                + Tambah Task
+                {t('timesheet.addTask', '+ Tambah Task')}
               </button>
               <button
                 type="button"
@@ -264,7 +269,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 disabled={isSaving}
                 className="px-3 py-1.5 rounded bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? 'Menyimpan...' : 'Simpan Draf'}
+                {isSaving ? t('timesheet.saving', 'Menyimpan...') : t('timesheet.saveDraft', 'Simpan Draf')}
               </button>
               <button
                 type="button"
@@ -272,7 +277,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 disabled={isSubmitting || grandTotal === 0}
                 className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
               >
-                {isSubmitting ? 'Mengajukan...' : 'Ajukan Timesheet'}
+                {isSubmitting ? t('timesheet.submitting', 'Mengajukan...') : t('timesheet.submitTimesheet', 'Ajukan Timesheet')}
               </button>
             </>
           )}
@@ -284,14 +289,14 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 onClick={() => setIsReturnModalOpen(true)}
                 className="px-3 py-1.5 rounded bg-white border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-medium transition-colors cursor-pointer"
               >
-                Kembalikan
+                {t('timesheet.returnTimesheet', 'Kembalikan')}
               </button>
               <button
                 type="button"
                 onClick={onApprove}
                 className="px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition-colors cursor-pointer"
               >
-                ✓ Setujui
+                {t('timesheet.approveTimesheet', '✓ Setujui')}
               </button>
             </>
           )}
@@ -303,7 +308,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         <table className="w-full text-xs text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-slate-700">
-              <th className="py-2.5 px-3 font-semibold min-w-[220px]">Proyek & Task</th>
+              <th className="py-2.5 px-3 font-semibold min-w-[220px]">{t('timesheet.projectAndTask', 'Proyek & Task')}</th>
               {weekDays.map((d) => (
                 <th
                   key={d.dateStr}
@@ -315,15 +320,15 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                   <div className="text-xs font-mono">{d.dayNum}</div>
                 </th>
               ))}
-              <th className="py-2.5 px-3 text-right font-semibold w-16">Total</th>
-              {!readOnly && isDraftOrReturned && <th className="py-2.5 px-2 text-center w-10">Aksi</th>}
+              <th className="py-2.5 px-3 text-right font-semibold w-16">{t('timesheet.total', 'Total')}</th>
+              {!readOnly && isDraftOrReturned && <th className="py-2.5 px-2 text-center w-10">{t('timesheet.actions', 'Aksi')}</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={weekDays.length + 3} className="py-8 text-center text-slate-400 italic">
-                  Belum ada baris entri task. Klik &quot;+ Tambah Task&quot; di atas untuk mulai mengisi jam kerja.
+                  {t('timesheet.emptyRows', 'Belum ada baris entri task. Klik "+ Tambah Task" di atas untuk mulai mengisi jam kerja.')}
                 </td>
               </tr>
             ) : (
@@ -372,7 +377,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                           type="button"
                           onClick={() => handleDeleteRow(r.rowKey)}
                           className="text-slate-400 hover:text-rose-600 transition-colors cursor-pointer text-xs"
-                          title="Hapus baris"
+                          title={t('timesheet.deleteRow', 'Hapus baris')}
                         >
                           ✕
                         </button>
@@ -385,7 +390,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
           </tbody>
           <tfoot>
             <tr className="bg-slate-50/80 border-t border-slate-200 font-semibold text-slate-900">
-              <td className="py-2.5 px-3">Total Jam per Hari</td>
+              <td className="py-2.5 px-3">{t('timesheet.totalHoursPerDay', 'Total Jam per Hari')}</td>
               {weekDays.map((d) => {
                 const dayTotal = dailyTotals[d.dateStr] || 0;
                 const isOverDailyLimit = dayTotal > 24;
@@ -419,10 +424,10 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-semibold text-slate-900">
-              Komparasi Beban Kerja: Estimasi vs Alokasi vs Aktual
+              {t('timesheet.comparisonTitle', 'Komparasi Beban Kerja: Estimasi vs Alokasi vs Aktual')}
             </h3>
             <span className="text-[11px] text-slate-500 font-mono">
-              Minggu {weekStartDate}
+              {t('timesheet.week', 'Minggu')} {weekStartDate}
             </span>
           </div>
 
@@ -430,12 +435,12 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
             <table className="w-full text-xs text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
-                  <th className="py-2 px-3 font-semibold">Proyek</th>
-                  <th className="py-2 px-3 font-semibold">Judul Task</th>
-                  <th className="py-2 px-3 text-right font-semibold">Estimasi Total</th>
-                  <th className="py-2 px-3 text-right font-semibold">Alokasi Minggu Ini</th>
-                  <th className="py-2 px-3 text-right font-semibold">Aktual Diisi</th>
-                  <th className="py-2 px-3 text-right font-semibold">Variansi</th>
+                  <th className="py-2 px-3 font-semibold">{t('timesheet.project', 'Proyek')}</th>
+                  <th className="py-2 px-3 font-semibold">{t('timesheet.taskTitle', 'Judul Task')}</th>
+                  <th className="py-2 px-3 text-right font-semibold">{t('timesheet.totalEstimate', 'Estimasi Total')}</th>
+                  <th className="py-2 px-3 text-right font-semibold">{t('timesheet.allocationThisWeek', 'Alokasi Minggu Ini')}</th>
+                  <th className="py-2 px-3 text-right font-semibold">{t('timesheet.actualLogged', 'Aktual Diisi')}</th>
+                  <th className="py-2 px-3 text-right font-semibold">{t('timesheet.variance', 'Variansi')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -484,16 +489,16 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg border border-slate-200 shadow-xl max-w-md w-full p-4 space-y-3">
             <h3 className="text-sm font-semibold text-slate-900">
-              Kembalikan Timesheet untuk Revisi
+              {t('timesheet.returnModalTitle', 'Kembalikan Timesheet untuk Revisi')}
             </h3>
             <p className="text-xs text-slate-500">
-              Tuliskan alasan pengembalian agar anggota tim dapat memperbaiki entri timesheet.
+              {t('timesheet.returnModalSubtitle', 'Tuliskan alasan pengembalian agar anggota tim dapat memperbaiki entri timesheet.')}
             </p>
             <textarea
               rows={3}
               value={returnNote}
               onChange={(e) => setReturnNote(e.target.value)}
-              placeholder="Contoh: Harap periksa kembali jam kerja hari Selasa pada proyek..."
+              placeholder={t('timesheet.returnPlaceholder', 'Contoh: Harap periksa kembali jam kerja hari Selasa pada proyek...')}
               className="w-full text-xs border border-slate-300 rounded p-2 focus:outline-none focus:ring-1 focus:ring-blue-400 font-sans"
               required
             />
@@ -503,7 +508,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 onClick={() => setIsReturnModalOpen(false)}
                 className="px-3 py-1.5 rounded border border-slate-300 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
               >
-                Batal
+                {t('timesheet.cancel', 'Batal')}
               </button>
               <button
                 type="button"
@@ -517,7 +522,7 @@ export const TimesheetWeeklyGrid: React.FC<TimesheetWeeklyGridProps> = ({
                 disabled={!returnNote.trim()}
                 className="px-3 py-1.5 rounded bg-rose-600 text-white text-xs font-medium hover:bg-rose-700 transition-colors disabled:opacity-50"
               >
-                Kembalikan Timesheet
+                {t('timesheet.returnConfirm', 'Kembalikan Timesheet')}
               </button>
             </div>
           </div>

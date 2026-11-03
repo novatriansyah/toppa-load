@@ -47,3 +47,4 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className =
     </div>
   );
 };
+

@@ -297,7 +297,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Catatan ruang lingkup proyek..."
+              placeholder={t('projects.form.scopeNotesPlaceholder', 'Catatan ruang lingkup proyek...')}
               className="w-full px-2.5 py-1.5 rounded border border-slate-200 focus:border-slate-400 focus:outline-none resize-none"
             />
           </div>

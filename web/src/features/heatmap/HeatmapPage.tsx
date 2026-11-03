@@ -116,13 +116,18 @@ export const HeatmapPage: React.FC = () => {
   // Apply Balance Suggestion mutation (One-Click Rebalance)
   const applyBalanceMutation = useMutation({
     mutationFn: (sug: WorkloadBalanceSuggestion) =>
-      apiClient.post<{ success: boolean; message: string }>('/api/v1/ai/balance-suggestions/apply', {
+      apiClient.post<{ success: boolean; message: string; newUserName?: string }>('/api/v1/ai/balance-suggestions/apply', {
         allocationId: sug.allocationId,
         candidateUserId: sug.candidateUserId,
         taskId: sug.taskId,
       }),
-    onSuccess: (res) => {
-      setAppliedNotice(res.message || t('ai.applySuccess', 'Beban kerja berhasil diseimbangkan!'));
+    onSuccess: (res, variables) => {
+      setAppliedNotice(
+        t('ai.applySuccessWithUser', {
+          name: res.newUserName || variables.candidateUserName,
+          defaultValue: res.message || t('ai.applySuccess', 'Beban kerja berhasil diseimbangkan!'),
+        })
+      );
       queryClient.invalidateQueries({ queryKey: ['capacity', 'heatmap'] });
       queryClient.invalidateQueries({ queryKey: ['aiBalanceSuggestions'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -407,11 +412,11 @@ export const HeatmapPage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between font-medium">
                     <span className="text-rose-700 font-semibold">
-                      {sug.overloadedUserName} ({sug.overloadedUserUtilPct}% beban)
+                      {sug.overloadedUserName} ({sug.overloadedUserUtilPct}% {t('ai.load', 'beban')})
                     </span>
                     <span className="text-slate-400">➔</span>
                     <span className="text-emerald-700 font-semibold">
-                      {sug.candidateUserName} ({sug.candidateUserUtilPct}% beban, {sug.candidateAvailableHours}j luang)
+                      {sug.candidateUserName} ({sug.candidateUserUtilPct}% {t('ai.load', 'beban')}, {sug.candidateAvailableHours}{t('ai.hrsFreeShort', 'j luang')})
                     </span>
                   </div>
 
@@ -420,12 +425,46 @@ export const HeatmapPage: React.FC = () => {
                       <span className="font-bold text-slate-900">[{sug.projectCode}]</span>
                       {sug.taskTitle && <span className="text-slate-800">• {sug.taskTitle}</span>}
                       {sug.hoursPerDay && (
-                        <span className="text-amber-800 font-semibold">({sug.hoursPerDay} jam/hari)</span>
+                        <span className="text-amber-800 font-semibold">({sug.hoursPerDay} {t('common.hoursPerDayUnit', 'jam/hari')})</span>
                       )}
                     </div>
                   )}
 
-                  <p className="text-[11px] text-slate-600 leading-relaxed">{sug.suggestionText}</p>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    {sug.taskTitle ? (
+                      t('ai.suggestionWithTask', {
+                        overloadedUser: sug.overloadedUserName,
+                        overloadedUtil: sug.overloadedUserUtilPct,
+                        taskTitle: sug.taskTitle,
+                        projectCode: sug.projectCode,
+                        hoursPerDay: sug.hoursPerDay,
+                        candidateUser: sug.candidateUserName,
+                        candidateUtil: sug.candidateUserUtilPct,
+                        availableHours: sug.candidateAvailableHours,
+                        defaultValue: sug.suggestionText,
+                      })
+                    ) : sug.projectCode ? (
+                      t('ai.suggestionWithProject', {
+                        overloadedUser: sug.overloadedUserName,
+                        overloadedUtil: sug.overloadedUserUtilPct,
+                        projectCode: sug.projectCode,
+                        hoursPerDay: sug.hoursPerDay,
+                        candidateUser: sug.candidateUserName,
+                        candidateUtil: sug.candidateUserUtilPct,
+                        availableHours: sug.candidateAvailableHours,
+                        defaultValue: sug.suggestionText,
+                      })
+                    ) : (
+                      t('ai.suggestionGeneral', {
+                        overloadedUser: sug.overloadedUserName,
+                        overloadedUtil: sug.overloadedUserUtilPct,
+                        candidateUser: sug.candidateUserName,
+                        candidateUtil: sug.candidateUserUtilPct,
+                        availableHours: sug.candidateAvailableHours,
+                        defaultValue: sug.suggestionText,
+                      })
+                    )}
+                  </p>
 
                   <div className="pt-1 flex items-center justify-end gap-2">
                     {sug.allocationId && (
@@ -454,7 +493,10 @@ export const HeatmapPage: React.FC = () => {
                           sug.projectId,
                           sug.taskId,
                           sug.hoursPerDay ? String(sug.hoursPerDay) : undefined,
-                          `Penyeimbangan beban dari ${sug.overloadedUserName}`
+                          t('ai.rebalanceNotesFrom', {
+                            name: sug.overloadedUserName,
+                            defaultValue: `Penyeimbangan beban dari ${sug.overloadedUserName}`,
+                          })
                         )
                       }
                       className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition-colors cursor-pointer"
@@ -518,7 +560,7 @@ export const HeatmapPage: React.FC = () => {
           <span>{t('capacity.overloadedDesc', '> 100% Kelebihan Beban (Arsir)')}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-rose-700 font-bold">⚠️ Konflik Cuti</span>
+          <span className="text-rose-700 font-bold">{t('capacity.leaveConflict', '⚠️ Konflik Cuti')}</span>
           <span>{t('capacity.conflictDesc', '(Alokasi aktif di hari cuti)')}</span>
         </div>
       </div>

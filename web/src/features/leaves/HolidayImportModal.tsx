@@ -197,15 +197,15 @@ export const HolidayImportModal: React.FC<HolidayImportModalProps> = ({ isOpen, 
           {activeTab === 'csv' && (
             <div className="space-y-3">
               <p className="text-slate-500 text-[11px]">
-                Format baris: <code className="bg-slate-100 px-1 py-0.5 rounded">tanggal,nama_libur,cakupan</code>
+                {t('leaves.csvRowFormat', 'Format baris:')} <code className="bg-slate-100 px-1 py-0.5 rounded">tanggal,nama_libur,cakupan</code>
                 <br />
-                Contoh: <code className="text-slate-700">2026-08-17,Hari Kemerdekaan RI,NATIONAL</code>
+                {t('leaves.csvExample', 'Contoh: 2026-08-17,Hari Kemerdekaan RI,NATIONAL')}
               </p>
               <textarea
                 rows={5}
                 value={csvContent}
                 onChange={(e) => setCsvContent(e.target.value)}
-                placeholder="2026-01-01,Tahun Baru Masehi,NATIONAL&#10;2026-05-01,Hari Buruh,NATIONAL"
+                placeholder={t('leaves.importPlaceholder', "2026-01-01,Tahun Baru Masehi,NATIONAL\n2026-05-01,Hari Buruh,NATIONAL")}
                 className="w-full p-2 border border-slate-300 rounded font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-slate-900"
               />
               <button

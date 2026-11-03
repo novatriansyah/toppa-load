@@ -284,7 +284,7 @@ export const CellBreakdownDrawer: React.FC<CellBreakdownDrawerProps> = ({
                       )}
                       <p className="text-[10px] text-slate-400 font-mono">
                         {alloc.startDate} s/d {alloc.endDate} ·{' '}
-                        <strong className="text-slate-700">{alloc.hoursPerDay} jam/hari</strong>
+                        <strong className="text-slate-700">{alloc.hoursPerDay} {t('common.hoursPerDayUnit', 'jam/hari')}</strong>
                       </p>
                     </div>
 

@@ -98,7 +98,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             <input
               type="text"
               readOnly
-              value={isLoading ? 'Memuat tautan...' : fullFeedUrl}
+              value={isLoading ? t('calendar.loadingUrl', 'Memuat tautan...') : fullFeedUrl}
               className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 select-all"
             />
             <button
@@ -106,25 +106,28 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
               disabled={isLoading || !fullFeedUrl}
               className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-xs"
             >
-              {copied ? '✓ Tersalin!' : 'Salin URL'}
+              {copied ? t('calendar.copied', '✓ Tersalin!') : t('calendar.copyUrl', 'Salin URL')}
             </button>
           </div>
           <div className="flex items-center justify-between text-2xs text-slate-400 pt-1">
             <span>
               {tokenData?.lastAccessedAt
-                ? `Terakhir diakses oleh kalender: ${new Date(tokenData.lastAccessedAt).toLocaleString('id-ID')}`
-                : 'Belum pernah diakses'}
+                ? t('calendar.lastAccessed', {
+                    time: new Date(tokenData.lastAccessedAt).toLocaleString(),
+                    defaultValue: `Terakhir diakses: ${new Date(tokenData.lastAccessedAt).toLocaleString()}`,
+                  })
+                : t('calendar.neverAccessed', 'Belum pernah diakses')}
             </span>
             <button
               onClick={() => {
-                if (confirm('Yakin ingin merotasi tautan? Kalender Outlook/Google lama Anda harus diperbarui dengan tautan baru.')) {
+                if (confirm(t('calendar.rotateConfirm', 'Yakin ingin merotasi tautan? Kalender Outlook/Google lama Anda harus diperbarui dengan tautan baru.'))) {
                   rotateMutation.mutate();
                 }
               }}
               disabled={rotateMutation.isPending}
               className="text-rose-600 hover:underline disabled:opacity-50"
             >
-              {rotateMutation.isPending ? 'Merotasi...' : 'Rotasi Tautan (Reset)'}
+              {rotateMutation.isPending ? t('calendar.rotating', 'Merotasi...') : t('calendar.rotateUrl', 'Rotasi Tautan (Reset)')}
             </button>
           </div>
         </div>
@@ -163,17 +166,17 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
           <div className="p-4 text-xs text-slate-600 dark:text-slate-300 space-y-2 bg-white dark:bg-slate-900">
             {activeTab === 'outlook' ? (
               <ol className="list-decimal list-inside space-y-1.5 leading-relaxed">
-                <li>Buka <strong>Outlook Calendar</strong> (aplikasi desktop atau <a href="https://outlook.office.com/calendar" target="_blank" rel="noreferrer" className="text-indigo-600 underline">outlook.office.com</a>).</li>
-                <li>Di panel kiri, klik tombol <strong>"Add calendar" (Tambah kalender)</strong>.</li>
-                <li>Pilih opsi <strong>"Subscribe from web" (Langganan dari web)</strong>.</li>
-                <li>Tempelkan tautan URL di atas, beri nama kalender <em>"Toppa Load"</em>, dan klik <strong>Import</strong>.</li>
+                <li>{t('calendar.outlookStep1', 'Buka Outlook Calendar (aplikasi desktop atau outlook.office.com).')}</li>
+                <li>{t('calendar.outlookStep2', 'Di panel kiri, klik tombol "Add calendar" (Tambah kalender).')}</li>
+                <li>{t('calendar.outlookStep3', 'Pilih opsi "Subscribe from web" (Langganan dari web).')}</li>
+                <li>{t('calendar.outlookStep4', 'Tempelkan tautan URL di atas, beri nama kalender "Toppa Load", dan klik Import.')}</li>
               </ol>
             ) : (
               <ol className="list-decimal list-inside space-y-1.5 leading-relaxed">
-                <li>Buka <a href="https://calendar.google.com" target="_blank" rel="noreferrer" className="text-indigo-600 underline">calendar.google.com</a> di browser Anda.</li>
-                <li>Pada bagian <strong>"Other calendars" (Kalender lainnya)</strong> di samping kiri, klik ikon tanda <strong>+</strong>.</li>
-                <li>Pilih <strong>"From URL" (Dari URL)</strong>.</li>
-                <li>Tempelkan tautan URL di atas dan klik <strong>Add calendar</strong>.</li>
+                <li>{t('calendar.googleStep1', 'Buka calendar.google.com di browser Anda.')}</li>
+                <li>{t('calendar.googleStep2', 'Pada bagian "Other calendars" (Kalender lainnya) di samping kiri, klik ikon tanda +.')}</li>
+                <li>{t('calendar.googleStep3', 'Pilih "From URL" (Dari URL).')}</li>
+                <li>{t('calendar.googleStep4', 'Tempelkan tautan URL di atas dan klik Add calendar.')}</li>
               </ol>
             )}
           </div>

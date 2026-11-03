@@ -206,28 +206,28 @@ export const ReportsPage: React.FC = () => {
           <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('reports.kpi.totalCapacity', 'Kapasitas Bersih')}</p>
             <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-              {summary.totalCapacityHours} <span className="text-xs font-normal text-slate-500">jam</span>
+              {summary.totalCapacityHours} <span className="text-xs font-normal text-slate-500">{t('common.hoursUnit', 'jam')}</span>
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('reports.kpi.totalAllocated', 'Total Alokasi')}</p>
             <p className="mt-2 text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {summary.totalAllocatedHours} <span className="text-xs font-normal text-slate-500">jam</span>
+              {summary.totalAllocatedHours} <span className="text-xs font-normal text-slate-500">{t('common.hoursUnit', 'jam')}</span>
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('reports.kpi.totalActual', 'Total Timesheet')}</p>
             <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {summary.totalActualHours} <span className="text-xs font-normal text-slate-500">jam</span>
+              {summary.totalActualHours} <span className="text-xs font-normal text-slate-500">{t('common.hoursUnit', 'jam')}</span>
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('reports.kpi.overloadedMembers', 'Anggota Overload')}</p>
             <p className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">
-              {summary.overloadedMembersCount} <span className="text-xs font-normal text-slate-500">orang</span>
+              {summary.overloadedMembersCount} <span className="text-xs font-normal text-slate-500">{t('common.peopleUnit', 'orang')}</span>
             </p>
           </div>
         </div>

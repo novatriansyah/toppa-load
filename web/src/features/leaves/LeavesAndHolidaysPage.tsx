@@ -259,7 +259,7 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                   {t('leaves.totalAllowance', 'Jatah Cuti Tahunan')} ({leaveBalance.year})
                 </span>
                 <div className="text-xl font-mono font-bold text-slate-900 mt-1">
-                  {leaveBalance.totalAllowanceDays} <span className="text-xs font-normal text-slate-500">hari</span>
+                  {leaveBalance.totalAllowanceDays} <span className="text-xs font-normal text-slate-500">{t('leaves.days', 'hari')}</span>
                 </div>
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-xs">
@@ -267,7 +267,7 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                   {t('leaves.usedDays', 'Cuti Disetujui / Terpakai')}
                 </span>
                 <div className="text-xl font-mono font-bold text-amber-600 mt-1">
-                  {leaveBalance.usedDays} <span className="text-xs font-normal text-slate-500">hari</span>
+                  {leaveBalance.usedDays} <span className="text-xs font-normal text-slate-500">{t('leaves.days', 'hari')}</span>
                 </div>
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-xs">
@@ -275,7 +275,7 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                   {t('leaves.remainingDays', 'Sisa Cuti Tersedia')}
                 </span>
                 <div className="text-xl font-mono font-bold text-emerald-600 mt-1">
-                  {leaveBalance.remainingDays} <span className="text-xs font-normal text-slate-500">hari</span>
+                  {leaveBalance.remainingDays} <span className="text-xs font-normal text-slate-500">{t('leaves.days', 'hari')}</span>
                 </div>
               </div>
             </div>
@@ -316,9 +316,11 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                           </td>
                           <td className="p-3 font-sans">
                             {l.portion === 'FULL' ? (
-                              <span className="text-slate-700">1 Hari Penuh</span>
+                              <span className="text-slate-700">{t('leaves.portionFullLabel', '1 Hari Penuh')}</span>
                             ) : (
-                              <span className="text-amber-700 font-medium">Setengah Hari ({l.portion})</span>
+                              <span className="text-amber-700 font-medium">
+                                {t('leaves.portionHalfLabel', 'Setengah Hari ({{portion}})', { portion: l.portion })}
+                              </span>
                             )}
                           </td>
                           <td className="p-3">
