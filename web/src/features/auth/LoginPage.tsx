@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useCurrentUser } from './useCurrentUser';
@@ -32,11 +31,24 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* SSO Action */}
-        <div className="space-y-3">
+        {/* Dual SSO Actions */}
+        <div className="space-y-2.5">
+          <a
+            href="/oauth2/authorization/microsoft"
+            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-[#2f2f2f] text-white rounded text-xs font-medium hover:bg-[#1f1f1f] transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 21 21">
+              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+            </svg>
+            <span>{t('auth.loginWithMicrosoft', 'Masuk dengan Microsoft')}</span>
+          </a>
+
           <a
             href="/oauth2/authorization/google"
-            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none"
+            className="w-full inline-flex items-center justify-center space-x-2.5 px-3 py-2 bg-white text-slate-700 border border-slate-300 rounded text-xs font-medium hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-slate-400 focus:outline-none shadow-xs"
           >
             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
@@ -56,7 +68,7 @@ export const LoginPage: React.FC = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
               />
             </svg>
-            <span>{t('auth.loginWithGoogle')}</span>
+            <span>{t('auth.loginWithGoogle', 'Masuk dengan Google')}</span>
           </a>
         </div>
 

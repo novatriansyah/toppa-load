@@ -40,6 +40,12 @@ class AllowlistOidcUserService extends OidcUserService {
             }
         }
         if (email == null || email.isBlank()) {
+            Object preferredUsername = oidcUser.getAttribute("preferred_username");
+            if (preferredUsername != null) {
+                email = preferredUsername.toString();
+            }
+        }
+        if (email == null || email.isBlank()) {
             email = oidcUser.getName();
         }
 
