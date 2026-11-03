@@ -12,6 +12,10 @@
 
 ## Global Constraints
 
+- **Alur Kerja Terkonfirmasi Pengguna (User-Confirmed Workflow):**
+  1. **Menu Buat Proyek (`/proyek`)**: Form & daftar proyek dengan kode unik, nama, status, dan rentang tanggal.
+  2. **Menu Buat Task per Proyek**: Tracker tiket task detail per proyek yang mencakup estimasi beban kerja (`estimated_hours`), persentase progres (`progress_percent` 0..100%), tanggal mulai (`start_date`), tenggat waktu (`due_date`), penanggung jawab (`assignee_id`), prioritas, dan status.
+  3. **Layar Beban Kerja (Workload Screen / Heatmap Orang × Minggu)**: Matriks penghitung total workload & utilisasi terhadap kapasitas bersih tim (memperhitungkan libur nasional & cuti) dengan klasifikasi `UNDERUTILIZED`, `OPTIMAL`, `OVERLOADED`, dan `NO_CAPACITY`.
 - Perhitungan kapasitas dan utilisasi wajib mengikuti seluruh rumus dan 10 kasus uji kanonik di `docs/prd.md` Bagian 7 (`TC-01` s/d `TC-10`) secara eksak.
 - Alokasi disimpan dalam satuan `hours_per_day` (`NUMERIC(4,2)`), bukan persentase; persentase hanya dihitung untuk tampilan periode.
 - Alokasi `TENTATIVE` wajib dipisahkan dari utilisasi `CONFIRMED` utama secara default, dan baru digabungkan bila parameter `includeTentative=true` diaktifkan pengguna.

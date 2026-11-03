@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Menyelesaikan Fase 1 dengan konfigurasi ambang utilisasi dinamis, notifikasi *in-app* & email SMTP terjadwal yang dijamin tidak pernah dobel, impor CSV data proyek/alokasi awal untuk onboarding 6 pengguna, hardening keamanan OWASP, serta pengujian E2E Playwright.
+**Goal:** Menyelesaikan Fase 1 dengan konfigurasi ambang utilisasi dinamis, notifikasi *in-app*, email SMTP terjadwal anti-dobel & Microsoft Teams Webhook (Adaptive Cards), Dual SSO (Google + Microsoft Entra ID), impor CSV data proyek/alokasi awal untuk onboarding 6 pengguna, hardening keamanan OWASP, serta pengujian E2E Playwright.
 
-**Architecture:** Pengaturan ambang utilisasi (`system_settings`) diekspos untuk diubah `ADMIN` dan langsung memengaruhi klasifikasi Heatmap & peringatan overload. Modul `notification` menggunakan kolom unik `dedup_key` di PostgreSQL (`ON CONFLICT (dedup_key) DO NOTHING`) untuk menjamin pemicu event maupun job `@Scheduled` harian/mingguan tidak pernah menggandakan notifikasi/email, lalu mengirim antrean `email_status = 'PENDING'` lewat `JavaMailSender`. Filter keamanan menambahkan header OWASP + rate-limiting per sesi/IP, dan Playwright memverifikasi alur penuh di browser nyata.
+**Architecture:** Pengaturan ambang utilisasi (`system_settings`) diekspos untuk diubah `ADMIN` dan langsung memengaruhi klasifikasi Heatmap & peringatan overload. Modul `notification` menggunakan kolom unik `dedup_key` di PostgreSQL (`ON CONFLICT (dedup_key) DO NOTHING`) untuk menjamin pemicu event maupun job `@Scheduled` harian/mingguan tidak pernah menggandakan notifikasi/email, lalu mengirim antrean `email_status = 'PENDING'` lewat `JavaMailSender` serta posting peringatan overload & deadline ke Microsoft Teams via `TeamsWebhookDispatcher` (Adaptive Cards). Autentikasi mendukung Dual SSO (Google + Microsoft Entra ID) dengan verifikasi allowlist email terpusat. Filter keamanan menambahkan header OWASP + rate-limiting per sesi/IP, dan Playwright memverifikasi alur penuh di browser nyata.
 
 **Tech Stack:** Spring Boot `4.1.0` (`spring-boot-starter-mail`, `@EnableScheduling`), PostgreSQL 17, Testcontainers `2.0.3`, GreenMail / Mailpit test SMTP, React 19, Radix UI Popover, Playwright (`@playwright/test`).
 
@@ -32,7 +32,8 @@
 
 - `server/src/main/java/com/toppaload/identity/SystemSettingsDto.java`, `SystemSettingsReader.java`, `internal/SystemSettingsController.java` — Pembacaan & pengubahan ambang utilisasi oleh Admin.
 - `server/src/main/java/com/toppaload/notification/NotificationPublisher.java`, `NotificationType.java` — Kontrak publik pemicu notifikasi.
-- `server/src/main/java/com/toppaload/notification/internal/NotificationRepository.java`, `SmtpEmailDispatcher.java`, `WorkloadAlertScheduler.java`, `NotificationController.java` — Deduplikasi `dedup_key`, pengiriman SMTP, job H-2 deadline & peringatan overload mingguan, serta API lonceng *in-app*.
+- `server/src/main/java/com/toppaload/notification/internal/NotificationRepository.java`, `SmtpEmailDispatcher.java`, `TeamsWebhookDispatcher.java`, `WorkloadAlertScheduler.java`, `NotificationController.java` — Deduplikasi `dedup_key`, pengiriman SMTP, integrasi Microsoft Teams Webhook (Adaptive Cards), job H-2 deadline & peringatan overload mingguan, serta API lonceng *in-app*.
+- `web/src/features/auth/LoginPage.tsx` — Tombol Dual SSO resmi: Masuk dengan Google (`/oauth2/authorization/google`) & Masuk dengan Microsoft (`/oauth2/authorization/microsoft`).
 - `server/src/main/java/com/toppaload/allocation/internal/AllocationCsvImportService.java`, `AllocationCsvImportController.java` — Utilitas impor CSV proyek/alokasi aktif untuk migrasi dari spreadsheet saat onboarding Minggu 7.
 - `server/src/main/java/com/toppaload/shared/OwaspHeadersAndRateLimitConfig.java` — Header keamanan CSP/Frame/Nosniff & rate-limiter mutasi ramah NAT kantor.
 - `web/src/features/notifications/NotificationBellPopover.tsx` — Lonceng *in-app* di `AppShell` dengan jumlah belum dibaca & aksi *Tandai Semua Dibaca*.
@@ -86,11 +87,11 @@ git commit -m "feat(settings): add configurable utilization thresholds wired to 
 
 ---
 
-### Task 2: Modul `notification` — Lonceng In-App & Email SMTP Terjadwal Anti-Dobel (`dedup_key`)
+### Task 2: Modul `notification` — Lonceng In-App, Email SMTP & Microsoft Teams Webhook Terjadwal Anti-Dobel (`dedup_key`)
 
 **Files:**
 - Create: `server/src/main/java/com/toppaload/notification/NotificationType.java`, `NotificationPublisher.java`
-- Create: `server/src/main/java/com/toppaload/notification/internal/NotificationRepository.java`, `SmtpEmailDispatcher.java`, `WorkloadAlertScheduler.java`, `NotificationController.java`
+- Create: `server/src/main/java/com/toppaload/notification/internal/NotificationRepository.java`, `SmtpEmailDispatcher.java`, `TeamsWebhookDispatcher.java`, `WorkloadAlertScheduler.java`, `NotificationController.java`
 - Modify: `server/pom.xml`, `server/src/main/java/com/toppaload/allocation/internal/AllocationService.java`
 - Test: `server/src/test/java/com/toppaload/notification/NotificationIdempotencyIT.java`
 
@@ -98,23 +99,24 @@ git commit -m "feat(settings): add configurable utilization thresholds wired to 
 - Consumes: `com.toppaload.capacity.CapacityQueryService`, `com.toppaload.identity.UserDirectory`, `com.toppaload.shared.WibClock`, `JavaMailSender`
 - Produces:
   - `NotificationPublisher.publishIfAbsent(UUID userId, NotificationType type, String title, Map<String, Object> payload, String dedupKey)`
-  - `@Scheduled` `WorkloadAlertScheduler` (cek H-2 due date task belum selesai & peringatan overload minggu berjalan/depan ke Supervisor)
+  - `@Scheduled` `WorkloadAlertScheduler` (cek H-2 due date task belum selesai & peringatan overload minggu berjalan/depan ke Supervisor via Email & Microsoft Teams Webhook)
   - `GET /api/v1/notifications`, `POST /api/v1/notifications/{id}/read`, `POST /api/v1/notifications/read-all`
 
 - [ ] **Step 1: Tambahkan `spring-boot-starter-mail` di `server/pom.xml` dan tulis failing integration test `NotificationIdempotencyIT`**
 
-Uji 4 skenario penting:
+Uji 5 skenario penting:
 1. Saat alokasi baru dibuat, 1 notifikasi `ALLOCATION_ASSIGNED` terbuat dan terkirim via `JavaMailSender` mock/test.
 2. Menjalankan `workloadAlertScheduler.runDailyChecks()` **dua kali berturut-turut** di tanggal WIB yang sama untuk user yang overload dan task H-2 deadline hanya membuat **tepat 1 notifikasi** dan memanggil `JavaMailSender.send(...)` **tepat 1 kali** berkat `ON CONFLICT (dedup_key) DO NOTHING`.
 3. User dengan `emailNotifications = false` tetap memiliki baris notifikasi *in-app* namun `email_status = 'SKIPPED'` dan `0` panggilan SMTP.
 4. Jika `JavaMailSender` melempar `MailSendException` untuk User A, baris User A menjadi `FAILED` dengan `email_error` tercatat, sedangkan email User B tetap terkirim (`SENT`).
+5. Jika `app.notification.teams-webhook-url` terisi, `TeamsWebhookDispatcher` memposting payload format Adaptive Cards ke webhook Microsoft Teams dengan ringkasan overload & deadline.
 
 - [ ] **Step 2: Jalankan test untuk memverifikasi gagal**
 
 Run: `cd server && ./mvnw.cmd test -Dtest=NotificationIdempotencyIT`
 Expected: FAIL
 
-- [ ] **Step 3: Implementasikan `NotificationRepository` (`INSERT ... ON CONFLICT (dedup_key) DO NOTHING`), `SmtpEmailDispatcher`, `WorkloadAlertScheduler`, dan `NotificationController`**
+- [ ] **Step 3: Implementasikan `NotificationRepository` (`INSERT ... ON CONFLICT (dedup_key) DO NOTHING`), `SmtpEmailDispatcher`, `TeamsWebhookDispatcher`, `WorkloadAlertScheduler`, dan `NotificationController`**
 
 Aktifkan `@EnableScheduling` pada konfigurasi non-test (atau kondisional properti `app.scheduling.enabled=true`) agar scheduler dapat dipanggil deterministik saat integration test.
 
@@ -127,7 +129,7 @@ Expected: PASS
 
 ```bash
 git add server/
-git commit -m "feat(notification): add in-app notifications and idempotent scheduled SMTP alerts"
+git commit -m "feat(notification): add in-app notifications, idempotent scheduled SMTP alerts, and Microsoft Teams webhook"
 ```
 
 ---
