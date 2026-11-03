@@ -47,7 +47,8 @@ class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers(
                                 PathPatternRequestMatcher.pathPattern("/api/v1/system/**"),
-                                PathPatternRequestMatcher.pathPattern("/api/v1/e2e/**")
+                                PathPatternRequestMatcher.pathPattern("/api/v1/e2e/**"),
+                                PathPatternRequestMatcher.pathPattern("/api/v1/calendar/feed/**")
                         )
                 )
                 .headers(headers -> headers
@@ -68,6 +69,7 @@ class SecurityConfig {
                                 "/oauth2/**",
                                 "/api/v1/system/**",
                                 "/api/v1/e2e/**",
+                                "/api/v1/calendar/feed/**",
                                 "/actuator/health"
                         ).permitAll()
                         .requestMatchers("/api/v1/**").authenticated()

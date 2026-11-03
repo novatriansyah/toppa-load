@@ -413,5 +413,10 @@
       "promoted": "Dipromosikan",
       "archived": "Diarsipkan"
     }
+  },
+  "calendar": {
+    "syncTitle": "Sinkronisasi Kalender Outlook & Google",
+    "syncSubtitle": "Langganan jadwal proyek & cuti Anda langsung di Microsoft Outlook atau Google Calendar via feed .ics standar RFC 5545.",
+    "feedUrlLabel": "Tautan Langganan Kalender Privat (.ics)"
   }
 }

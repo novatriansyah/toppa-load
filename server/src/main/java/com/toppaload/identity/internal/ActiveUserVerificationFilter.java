@@ -35,7 +35,7 @@ class ActiveUserVerificationFilter extends OncePerRequestFilter {
         if (!path.startsWith("/api/v1/")) {
             return true;
         }
-        return path.startsWith("/api/v1/system/");
+        return path.startsWith("/api/v1/system/") || path.startsWith("/api/v1/calendar/feed/");
     }
 
     @Override

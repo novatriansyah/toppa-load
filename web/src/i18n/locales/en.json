@@ -413,5 +413,10 @@
       "promoted": "Promoted",
       "archived": "Archived"
     }
+  },
+  "calendar": {
+    "syncTitle": "Outlook & Google Calendar Sync",
+    "syncSubtitle": "Subscribe to your project and leave schedule directly in Microsoft Outlook or Google Calendar via standard RFC 5545 .ics feed.",
+    "feedUrlLabel": "Private Calendar Feed Subscription URL (.ics)"
   }
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from '../features/auth/useCurrentUser';
 import { NotificationBellPopover } from '../features/notifications/NotificationBellPopover';
+import { CalendarSyncModal } from '../features/calendar/CalendarSyncModal';
 import { apiClient } from '../shared/api/httpClient';
 
 interface SystemInfo {
@@ -107,6 +108,7 @@ export const AppShell: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
 
   // Consume user reactively from useCurrentUser hook
   const { data: currentUser } = useCurrentUser();
@@ -167,6 +169,19 @@ export const AppShell: React.FC = () => {
 
           {/* Notification Bell */}
           <NotificationBellPopover />
+
+          {/* Calendar Sync Button */}
+          <button
+            type="button"
+            onClick={() => setIsCalendarModalOpen(true)}
+            className="p-1 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            title={t('calendar.syncTitle', 'Sinkronisasi Kalender Outlook & Google')}
+            aria-label="Sinkronisasi Kalender Outlook & Google"
+          >
+            <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
 
           {/* User Profile Badge */}
           <div
@@ -234,6 +249,8 @@ export const AppShell: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      <CalendarSyncModal isOpen={isCalendarModalOpen} onClose={() => setIsCalendarModalOpen(false)} />
     </div>
   );
 };
