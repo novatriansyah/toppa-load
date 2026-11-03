@@ -113,9 +113,9 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             <span>
               {tokenData?.lastAccessedAt
                 ? t('calendar.lastAccessed', {
-                    time: new Date(tokenData.lastAccessedAt).toLocaleString(),
-                    defaultValue: `Terakhir diakses: ${new Date(tokenData.lastAccessedAt).toLocaleString()}`,
-                  })
+                  time: new Date(tokenData.lastAccessedAt).toLocaleString(),
+                  defaultValue: `Terakhir diakses: ${new Date(tokenData.lastAccessedAt).toLocaleString()}`,
+                })
                 : t('calendar.neverAccessed', 'Belum pernah diakses')}
             </span>
             <button
@@ -137,27 +137,25 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
           <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
             <button
               onClick={() => setActiveTab('outlook')}
-              className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${
-                activeTab === 'outlook'
+              className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'outlook'
                   ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
                   : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
+                }`}
             >
               <svg className="w-4 h-4 text-sky-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm4-4H6v-2h10v2zm0-4H6V7h10v2z"/>
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm4-4H6v-2h10v2zm0-4H6V7h10v2z" />
               </svg>
               Microsoft Outlook / 365
             </button>
             <button
               onClick={() => setActiveTab('google')}
-              className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${
-                activeTab === 'google'
+              className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'google'
                   ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
                   : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
+                }`}
             >
               <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
               </svg>
               Google Calendar
             </button>

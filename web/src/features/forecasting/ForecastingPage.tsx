@@ -280,8 +280,8 @@ export const ForecastingPage: React.FC = () => {
       {feedbackMsg && (
         <div
           className={`p-3 text-sm rounded-lg border ${feedbackMsg.type === 'success'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-              : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
+            : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
             }`}
         >
           {feedbackMsg.text}
@@ -295,8 +295,8 @@ export const ForecastingPage: React.FC = () => {
             key={sc.id}
             onClick={() => setSelectedScenarioId(sc.id)}
             className={`px-3.5 py-2 text-xs font-medium rounded-lg transition-all flex items-center gap-2 whitespace-nowrap ${sc.id === activeScenarioId
-                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800 shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
+              ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800 shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
           >
             <span>{sc.name}</span>
@@ -516,10 +516,10 @@ export const ForecastingPage: React.FC = () => {
                             <span className="text-slate-400">→</span>
                             <span
                               className={`font-mono font-bold ${u.simulatedUtilPct > 100
-                                  ? 'text-rose-600 dark:text-rose-400'
-                                  : u.simulatedUtilPct < 70
-                                    ? 'text-sky-600 dark:text-sky-400'
-                                    : 'text-emerald-600 dark:text-emerald-400'
+                                ? 'text-rose-600 dark:text-rose-400'
+                                : u.simulatedUtilPct < 70
+                                  ? 'text-sky-600 dark:text-sky-400'
+                                  : 'text-emerald-600 dark:text-emerald-400'
                                 }`}
                             >
                               {u.simulatedUtilPct}%

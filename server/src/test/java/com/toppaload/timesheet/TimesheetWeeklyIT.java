@@ -254,5 +254,26 @@ class TimesheetWeeklyIT {
                 .andExpect(jsonPath("$.comparisons[0].allocatedHours", closeTo(16.0, 0.01)))
                 .andExpect(jsonPath("$.comparisons[0].actualLoggedHours", closeTo(18.0, 0.01)));
     }
+
+    @Test
+    @DisplayName("Supervisor dapat melihat timesheet anggota lain, namun sesama member ditolak")
+    void supervisorCanViewOtherMemberTimesheetAndMemberIsForbidden() throws Exception {
+        // Supervisor views member timesheet -> 200 OK
+        mockMvc.perform(get("/api/v1/timesheets/weekly")
+                        .param("weekStartDate", monday.toString())
+                        .param("userId", memberId.toString())
+                        .with(oidcLogin().idToken(t -> t.claim("email", "spv@toppaload.local"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_SUPERVISOR"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.submission.userId", is(memberId.toString())));
+
+        // Member attempts to view supervisor timesheet -> 403 Forbidden
+        mockMvc.perform(get("/api/v1/timesheets/weekly")
+                        .param("weekStartDate", monday.toString())
+                        .param("userId", supervisorId.toString())
+                        .with(oidcLogin().idToken(t -> t.claim("email", "member.ani@toppaload.local"))
+                                .authorities(new SimpleGrantedAuthority("ROLE_MEMBER"))))
+                .andExpect(status().isForbidden());
+    }
 }
 

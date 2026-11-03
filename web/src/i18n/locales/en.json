@@ -578,6 +578,7 @@
     "selectProject": "-- Select Project --",
     "selectTask": "-- Select Task (Optional) --",
     "generalAllocation": "— General Allocation —",
-    "emptyRows": "No task entry rows yet. Click \"+ Add Task\" above to begin logging hours."
+    "emptyRows": "No task entry rows yet. Click \"+ Add Task\" above to begin logging hours.",
+    "loadError": "Failed to load timesheet. Please try again."
   }
 }

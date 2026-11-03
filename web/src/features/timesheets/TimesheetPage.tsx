@@ -281,10 +281,10 @@ export const TimesheetPage: React.FC = () => {
 
           {/* Timesheet Content */}
           {isLoading ? (
-            <div className="py-12 text-center text-slate-500 text-xs">Memuat data timesheet...</div>
+            <div className="py-12 text-center text-slate-500 text-xs">{t('common.loading', 'Memuat data timesheet...')}</div>
           ) : error || !timesheetData ? (
             <div className="py-12 text-center text-rose-600 text-xs">
-              Gagal memuat timesheet. Silakan coba kembali.
+              {t('timesheet.loadError', 'Gagal memuat timesheet. Silakan coba kembali.')}
             </div>
           ) : (
             <TimesheetWeeklyGrid

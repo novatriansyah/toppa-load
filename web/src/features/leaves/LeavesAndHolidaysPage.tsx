@@ -205,11 +205,10 @@ export const LeavesAndHolidaysPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('leaves')}
-          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${
-            activeTab === 'leaves'
+          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${activeTab === 'leaves'
               ? 'border-b-2 border-slate-900 text-slate-900'
               : 'text-slate-500 hover:text-slate-900'
-          }`}
+            }`}
         >
           <span>{t('leaves.tabLeaves', 'Cuti Anggota Tim')}</span>
           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600">
@@ -220,11 +219,10 @@ export const LeavesAndHolidaysPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('holidays')}
-          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${
-            activeTab === 'holidays'
+          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${activeTab === 'holidays'
               ? 'border-b-2 border-slate-900 text-slate-900'
               : 'text-slate-500 hover:text-slate-900'
-          }`}
+            }`}
         >
           <span>{t('leaves.tabHolidays', 'Libur Nasional & Perusahaan')}</span>
           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600">
@@ -235,11 +233,10 @@ export const LeavesAndHolidaysPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('skills')}
-          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${
-            activeTab === 'skills'
+          className={`pb-2.5 font-bold transition-colors flex items-center gap-2 ${activeTab === 'skills'
               ? 'border-b-2 border-slate-900 text-slate-900'
               : 'text-slate-500 hover:text-slate-900'
-          }`}
+            }`}
         >
           <span>{t('leaves.tabSkills', 'Matriks Keahlian (Skill Matrix)')}</span>
           <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-600">
@@ -408,11 +405,10 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                   key={year}
                   type="button"
                   onClick={() => setSelectedYear(year)}
-                  className={`px-3 py-1 rounded border text-xs font-mono font-medium ${
-                    selectedYear === year
+                  className={`px-3 py-1 rounded border text-xs font-mono font-medium ${selectedYear === year
                       ? 'bg-slate-900 text-white border-slate-900'
                       : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   {year}
                 </button>
@@ -458,11 +454,10 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                         <td className="p-3 font-sans font-medium text-slate-800">{h.name}</td>
                         <td className="p-3">
                           <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                              h.scope === 'NATIONAL'
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${h.scope === 'NATIONAL'
                                 ? 'bg-rose-100 text-rose-800'
                                 : 'bg-blue-100 text-blue-800'
-                            }`}
+                              }`}
                           >
                             {h.scope}
                           </span>
@@ -529,15 +524,14 @@ export const LeavesAndHolidaysPage: React.FC = () => {
                         <td className="p-3 font-bold text-slate-800">{s.skillName}</td>
                         <td className="p-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                              s.proficiencyLevel === 'EXPERT'
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold ${s.proficiencyLevel === 'EXPERT'
                                 ? 'bg-purple-100 text-purple-800'
                                 : s.proficiencyLevel === 'ADVANCED'
-                                ? 'bg-blue-100 text-blue-800'
-                                : s.proficiencyLevel === 'INTERMEDIATE'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-100 text-slate-700'
-                            }`}
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : s.proficiencyLevel === 'INTERMEDIATE'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-slate-100 text-slate-700'
+                              }`}
                           >
                             {s.proficiencyLevel}
                           </span>

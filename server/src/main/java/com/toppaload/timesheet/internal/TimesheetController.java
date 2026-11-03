@@ -1,6 +1,7 @@
 package com.toppaload.timesheet.internal;
 
 import com.toppaload.identity.AuthenticatedActor;
+import com.toppaload.identity.Role;
 import com.toppaload.identity.UserDirectory;
 import com.toppaload.timesheet.*;
 import jakarta.validation.Valid;
@@ -35,7 +36,7 @@ class TimesheetController {
         UUID targetUserId = actor.userId();
 
         if (requestedUserId != null && !requestedUserId.equals(actor.userId())) {
-            if (!"ADMIN".equals(actor.role()) && !"SUPERVISOR".equals(actor.role())) {
+            if (actor.role() != Role.ADMIN && actor.role() != Role.SUPERVISOR) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                         "Hanya Supervisor atau Admin yang dapat melihat timesheet pengguna lain.");
             }

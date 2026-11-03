@@ -289,33 +289,30 @@ export const HeatmapPage: React.FC = () => {
           <button
             type="button"
             onClick={() => handleGranularityChange('DAY')}
-            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${
-              granularity === 'DAY'
+            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${granularity === 'DAY'
                 ? 'bg-white text-slate-900 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             {t('heatmap.granularityDay', 'Hari')}
           </button>
           <button
             type="button"
             onClick={() => handleGranularityChange('WEEK')}
-            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${
-              granularity === 'WEEK'
+            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${granularity === 'WEEK'
                 ? 'bg-white text-slate-900 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             {t('heatmap.granularityWeek', 'Minggu')}
           </button>
           <button
             type="button"
             onClick={() => handleGranularityChange('MONTH')}
-            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${
-              granularity === 'MONTH'
+            className={`px-2.5 py-1 rounded font-medium text-xs transition-colors ${granularity === 'MONTH'
                 ? 'bg-white text-slate-900 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+              }`}
           >
             {t('heatmap.granularityMonth', 'Bulan')}
           </button>
@@ -535,9 +532,9 @@ export const HeatmapPage: React.FC = () => {
           selectedCellCoord={
             selectedCellInfo
               ? {
-                  userId: selectedCellInfo.userId,
-                  bucketStart: selectedCellInfo.cell.bucketStart,
-                }
+                userId: selectedCellInfo.userId,
+                bucketStart: selectedCellInfo.cell.bucketStart,
+              }
               : null
           }
           onSelectCell={handleCellSelect}

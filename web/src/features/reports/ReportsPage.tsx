@@ -129,7 +129,7 @@ export const ReportsPage: React.FC = () => {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-750 transition-colors shadow-sm"
           >
             <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1.8 14-1.8-3-1.8 3H10l2.7-4.2L10.2 8h2.1l1.7 3 1.7-3h2.1l-2.6 3.8 2.8 4.2h-2.2zM13 9V3.5L18.5 9H13z"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1.8 14-1.8-3-1.8 3H10l2.7-4.2L10.2 8h2.1l1.7 3 1.7-3h2.1l-2.6 3.8 2.8 4.2h-2.2zM13 9V3.5L18.5 9H13z" />
             </svg>
             {t('reports.exportExcel', 'Ekspor Excel (.xlsx)')}
           </button>
@@ -191,13 +191,12 @@ export const ReportsPage: React.FC = () => {
             </div>
             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
               <div
-                className={`h-full rounded-full ${
-                  summary.overallUtilizationPct > 100
+                className={`h-full rounded-full ${summary.overallUtilizationPct > 100
                     ? 'bg-rose-500'
                     : summary.overallUtilizationPct < 70
-                    ? 'bg-sky-500'
-                    : 'bg-emerald-500'
-                }`}
+                      ? 'bg-sky-500'
+                      : 'bg-emerald-500'
+                  }`}
                 style={{ width: `${Math.min(summary.overallUtilizationPct, 100)}%` }}
               />
             </div>
@@ -289,13 +288,12 @@ export const ReportsPage: React.FC = () => {
                         </span>
                         <div className="w-24 bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${
-                              m.utilizationPct > 100
+                            className={`h-full rounded-full ${m.utilizationPct > 100
                                 ? 'bg-rose-500'
                                 : m.utilizationPct < 70
-                                ? 'bg-sky-500'
-                                : 'bg-emerald-500'
-                            }`}
+                                  ? 'bg-sky-500'
+                                  : 'bg-emerald-500'
+                              }`}
                             style={{ width: `${Math.min(m.utilizationPct, 100)}%` }}
                           />
                         </div>

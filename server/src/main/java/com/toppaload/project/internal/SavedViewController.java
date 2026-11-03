@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toppaload.identity.AuthenticatedActor;
+import com.toppaload.identity.Role;
 import com.toppaload.identity.UserDirectory;
 import com.toppaload.project.CreateSavedViewRequest;
 import com.toppaload.project.SavedViewDto;
@@ -135,7 +136,7 @@ class SavedViewController {
         }
 
         SavedViewDto view = existing.get();
-        if (!view.userId().equals(actor.userId()) && !"ADMIN".equals(actor.role())) {
+        if (!view.userId().equals(actor.userId()) && actor.role() != Role.ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Anda tidak memiliki akses untuk menghapus tampilan tersimpan ini.");
         }
 

@@ -578,6 +578,7 @@
     "selectProject": "-- Pilih Proyek --",
     "selectTask": "-- Pilih Task (Opsional) --",
     "generalAllocation": "— Alokasi Umum —",
-    "emptyRows": "Belum ada baris entri task. Klik \"+ Tambah Task\" di atas untuk mulai mengisi jam kerja."
+    "emptyRows": "Belum ada baris entri task. Klik \"+ Tambah Task\" di atas untuk mulai mengisi jam kerja.",
+    "loadError": "Gagal memuat timesheet. Silakan coba kembali."
   }
 }
