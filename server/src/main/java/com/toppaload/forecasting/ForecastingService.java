@@ -18,6 +18,8 @@ public interface ForecastingService {
 
     void deleteScenarioAllocation(UUID scenarioId, UUID allocationId);
 
+    void deleteScenario(UUID scenarioId);
+
     SimulationResultDto simulateScenario(UUID scenarioId, LocalDate startDate, LocalDate endDate);
 
     int promoteScenario(UUID scenarioId, UUID promoterId);

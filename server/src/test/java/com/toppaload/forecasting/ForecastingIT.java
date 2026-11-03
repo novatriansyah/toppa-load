@@ -151,6 +151,17 @@ class ForecastingIT {
                 ScenarioDto.class
         );
         assertThat(promotedScenario.status()).isEqualTo("PROMOTED");
+
+        // 5. Delete scenario
+        mockMvc.perform(delete("/api/v1/scenarios/" + scenarioId)
+                        .with(csrf())
+                        .with(auth("admin@toppaload.local", "ADMIN")))
+                .andExpect(status().isNoContent());
+
+        // Verify scenario is gone
+        mockMvc.perform(get("/api/v1/scenarios/" + scenarioId)
+                        .with(auth("admin@toppaload.local", "ADMIN")))
+                .andExpect(status().isNotFound());
     }
 }
 

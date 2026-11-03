@@ -57,6 +57,13 @@ class ForecastingController {
         return ResponseEntity.ok(forecastingService.getScenario(id));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
+    public ResponseEntity<Void> deleteScenario(@PathVariable UUID id) {
+        forecastingService.deleteScenario(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/allocations")
     public ResponseEntity<List<ScenarioAllocationDto>> getScenarioAllocations(@PathVariable UUID id) {
         return ResponseEntity.ok(forecastingService.getScenarioAllocations(id));

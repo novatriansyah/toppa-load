@@ -475,11 +475,18 @@
     "selectMember": "Pilih Anggota Tim *",
     "chooseMember": "-- Pilih Anggota --",
     "hypotheticalProjectName": "Nama Proyek Hipotetis *",
-    "hoursPerDayField": "Jam Alokasi / Hari (1-24) *",
+    "hoursPerDayField": "Jam Alokasi / Hari (0.1-24) *",
     "scenarioNamePlaceholder": "Contoh: Ekspansi Proyek Retail Q1",
     "promoteConfirm": "Yakin ingin mempromosikan skenario ini ke produksi? Semua alokasi percobaan akan menjadi alokasi aktif.",
     "promoteSuccess": "Skenario berhasil dipromosikan ke jadwal produksi!",
-    "deleteScenarioConfirm": "Yakin ingin menghapus skenario ini?"
+    "confirmPromote": "Yakin ingin mempromosikan skenario ini? Seluruh alokasi percobaan akan dijadikan jadwal alokasi riil di modul produksi.",
+    "promoted": "Sudah Dipromosikan",
+    "simulate": "Hitung Simulasi",
+    "simulating": "Menghitung...",
+    "deleteScenario": "Hapus Skenario",
+    "deleteScenarioTooltip": "Hapus skenario simulasi ini",
+    "confirmDeleteScenario": "Apakah Anda yakin ingin menghapus skenario \"{{name}}\" beserta seluruh alokasi percobaannya?",
+    "scenarioDeleted": "Skenario simulasi berhasil dihapus."
   },
   "calendar": {
     "syncTitle": "Sinkronisasi Kalender Outlook & Google",

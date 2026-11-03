@@ -199,6 +199,22 @@ class ForecastingServiceImpl implements ForecastingService {
 
     @Override
     @Transactional
+    public void deleteScenario(UUID scenarioId) {
+        jdbc.sql("DELETE FROM scenario_allocations WHERE scenario_id = :id")
+                .param("id", scenarioId)
+                .update();
+
+        int deleted = jdbc.sql("DELETE FROM scenarios WHERE id = :id")
+                .param("id", scenarioId)
+                .update();
+
+        if (deleted == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Skenario tidak ditemukan: " + scenarioId);
+        }
+    }
+
+    @Override
+    @Transactional
     public SimulationResultDto simulateScenario(UUID scenarioId, LocalDate startDate, LocalDate endDate) {
         ScenarioDto scenario = getScenario(scenarioId);
         List<ScenarioAllocationDto> draftAllocations = getScenarioAllocations(scenarioId);

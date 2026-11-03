@@ -53,17 +53,17 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full p-6 space-y-5">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full p-6 space-y-5">
         {/* Modal Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-lg font-bold text-slate-900">
                 {t('calendar.syncTitle', 'Sinkronisasi Kalender Outlook & Google')}
               </h2>
               <p className="text-xs text-slate-500">
@@ -73,7 +73,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+            className="text-slate-400 hover:text-slate-600 p-1"
           >
             ✕
           </button>
@@ -81,7 +81,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
 
         {/* Feed URL Box */}
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <label className="block text-xs font-semibold text-slate-700">
             {t('calendar.feedUrlLabel', 'Tautan Langganan Kalender Privat (.ics)')}
           </label>
           <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
               type="text"
               readOnly
               value={isLoading ? t('calendar.loadingUrl', 'Memuat tautan...') : fullFeedUrl}
-              className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 select-all"
+              className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-300 rounded-lg text-slate-800 select-all"
             />
             <button
               onClick={handleCopy}
@@ -123,12 +123,12 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
         </div>
 
         {/* Step-by-Step Platform Tabs */}
-        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+        <div className="border border-slate-200 rounded-xl overflow-hidden">
+          <div className="flex border-b border-slate-200 bg-slate-50">
             <button
               onClick={() => setActiveTab('outlook')}
               className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'outlook'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                ? 'border-indigo-600 text-indigo-600 bg-white'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -140,7 +140,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             <button
               onClick={() => setActiveTab('google')}
               className={`flex-1 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 border-b-2 transition-all ${activeTab === 'google'
-                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                ? 'border-indigo-600 text-indigo-600 bg-white'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -151,7 +151,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             </button>
           </div>
 
-          <div className="p-4 text-xs text-slate-600 dark:text-slate-300 space-y-2 bg-white dark:bg-slate-900">
+          <div className="p-4 text-xs text-slate-600 space-y-2 bg-white">
             {activeTab === 'outlook' ? (
               <ol className="list-decimal list-inside space-y-1.5 leading-relaxed">
                 <li>{t('calendar.outlookStep1', 'Buka Outlook Calendar (aplikasi desktop atau outlook.office.com).')}</li>
@@ -174,7 +174,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
         <div className="flex justify-end pt-1">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750 transition-colors"
+            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
           >
             {t('common.close', 'Tutup')}
           </button>

@@ -475,11 +475,18 @@
     "selectMember": "Select Team Member *",
     "chooseMember": "-- Select Member --",
     "hypotheticalProjectName": "Hypothetical Project Name *",
-    "hoursPerDayField": "Allocated Hours / Day (1-24) *",
+    "hoursPerDayField": "Allocated Hours / Day (0.1-24) *",
     "scenarioNamePlaceholder": "e.g. Q1 Retail Expansion",
     "promoteConfirm": "Are you sure you want to promote this scenario to production? All draft allocations will become live allocations.",
     "promoteSuccess": "Scenario successfully promoted to live production!",
-    "deleteScenarioConfirm": "Are you sure you want to delete this scenario?"
+    "confirmPromote": "Are you sure you want to promote this scenario? All draft allocations will become live production schedules.",
+    "promoted": "Promoted",
+    "simulate": "Run Simulation",
+    "simulating": "Simulating...",
+    "deleteScenario": "Delete Scenario",
+    "deleteScenarioTooltip": "Delete this simulation scenario",
+    "confirmDeleteScenario": "Are you sure you want to delete scenario \"{{name}}\" and all its draft allocations?",
+    "scenarioDeleted": "Simulation scenario deleted successfully."
   },
   "calendar": {
     "syncTitle": "Outlook & Google Calendar Sync",
