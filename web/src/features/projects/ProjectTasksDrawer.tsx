@@ -12,6 +12,7 @@ import {
 import { UserSummary } from '../settings/UsersSettingsSection';
 import { TaskKanbanView } from './views/TaskKanbanView';
 import { TaskCalendarView } from './views/TaskCalendarView';
+import { TaskCommentsSection } from './TaskCommentsSection';
 
 export interface ProjectTasksDrawerProps {
   project: {
@@ -62,6 +63,7 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'calendar'>('list');
+  const [taskModalTab, setTaskModalTab] = useState<'details' | 'comments'>('details');
 
   // Edit task state
   const [editingTask, setEditingTask] = useState<TaskSummary | null>(null);
@@ -176,6 +178,7 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
   };
 
   const handleOpenEdit = (task: TaskSummary) => {
+    setTaskModalTab('details');
     setEditingTask(task);
     setEditTitle(task.title);
     setEditDescription(task.description || '');
@@ -543,11 +546,41 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
               </button>
             </div>
 
-            {editErrors.general && (
-              <div className="p-2 rounded bg-rose-50 border border-rose-200 text-xs text-rose-700">
-                {editErrors.general}
-              </div>
-            )}
+            {/* Modal Subtabs */}
+            <div className="flex border-b border-slate-200 gap-4 text-xs">
+              <button
+                type="button"
+                onClick={() => setTaskModalTab('details')}
+                className={`pb-1.5 font-medium transition-colors cursor-pointer ${
+                  taskModalTab === 'details'
+                    ? 'border-b-2 border-slate-900 text-slate-900 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {t('projects.tasks.editTitle', 'Detail Task')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setTaskModalTab('comments')}
+                className={`pb-1.5 font-medium transition-colors cursor-pointer ${
+                  taskModalTab === 'comments'
+                    ? 'border-b-2 border-slate-900 text-slate-900 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                💬 {t('projects.comments.tabTitle', 'Komentar & Aktivitas')}
+              </button>
+            </div>
+
+            {taskModalTab === 'comments' ? (
+              <TaskCommentsSection taskId={editingTask.id} />
+            ) : (
+              <>
+                {editErrors.general && (
+                  <div className="p-2 rounded bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                    {editErrors.general}
+                  </div>
+                )}
 
             <form noValidate onSubmit={handleSaveEdit} className="space-y-3 text-xs">
               {/* Title */}
@@ -712,6 +745,8 @@ export const ProjectTasksDrawer: React.FC<ProjectTasksDrawerProps> = ({
                 </button>
               </div>
             </form>
+          </>
+        )}
           </div>
         </div>
       )}

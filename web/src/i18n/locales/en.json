@@ -121,6 +121,14 @@
       "importSuccess": "Successfully imported {{count}} allocations, {{projects}} projects, and {{tasks}} tasks.",
       "importError": "Failed to import CSV. Please ensure all user emails exist in the allowlist.",
       "formatHint": "Required column headers: project_code,project_name,task_title,user_email,start_date,end_date,hours_per_day,type"
+    },
+    "teams": {
+      "webhookUrlLabel": "Microsoft Teams Webhook (Incoming Webhook URL)",
+      "testButton": "Test Webhook",
+      "testing": "Testing...",
+      "testSuccess": "Successfully sent test adaptive card to Microsoft Teams!",
+      "testFailed": "Failed to send webhook. Check URL configuration.",
+      "webhookHelp": "Overload alerts (>100%), H-2 task due reminders, and Friday afternoon timesheet reminders will be sent to the Teams channel via this URL."
     }
   },
   "projects": {
@@ -199,6 +207,13 @@
       "priorityMEDIUM": "Medium",
       "priorityHIGH": "High",
       "priorityURGENT": "Urgent"
+    },
+    "comments": {
+      "tabTitle": "Comments & Activity",
+      "noComments": "No comments on this task yet.",
+      "placeholder": "Write a comment or task update...",
+      "send": "Post Comment",
+      "confirmDelete": "Delete this comment?"
     }
   },
   "capacity": {

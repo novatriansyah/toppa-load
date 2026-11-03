@@ -121,6 +121,14 @@
       "importSuccess": "Berhasil mengimpor {{count}} alokasi, {{projects}} proyek, dan {{tasks}} task baru.",
       "importError": "Gagal mengimpor CSV. Pastikan seluruh email terdaftar pada allowlist.",
       "formatHint": "Format header kolom wajib: project_code,project_name,task_title,user_email,start_date,end_date,hours_per_day,type"
+    },
+    "teams": {
+      "webhookUrlLabel": "Webhook Microsoft Teams (Incoming Webhook URL)",
+      "testButton": "Uji Webhook",
+      "testing": "Menguji...",
+      "testSuccess": "Berhasil mengirim kartu uji coba ke Microsoft Teams!",
+      "testFailed": "Gagal mengirim webhook. Periksa konfigurasi URL.",
+      "webhookHelp": "Notifikasi peringatan beban lebih (>100%), batas waktu task H-2, dan pengingat timesheet Jumat sore akan dikirimkan ke channel Teams melalui URL ini."
     }
   },
   "projects": {
@@ -199,6 +207,13 @@
       "priorityMEDIUM": "Sedang",
       "priorityHIGH": "Tinggi",
       "priorityURGENT": "Mendesak"
+    },
+    "comments": {
+      "tabTitle": "Komentar & Aktivitas",
+      "noComments": "Belum ada komentar pada task ini.",
+      "placeholder": "Tulis komentar atau perkembangan task...",
+      "send": "Kirim Komentar",
+      "confirmDelete": "Hapus komentar ini?"
     }
   },
   "capacity": {

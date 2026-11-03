@@ -8,6 +8,7 @@ interface SystemSettings {
   underutilizedThresholdPct: number;
   overloadedThresholdPct: number;
   workTimezone: string;
+  teamsWebhookUrl?: string | null;
 }
 
 interface CsvImportResult {
@@ -34,6 +35,8 @@ export const ThresholdsAndImportSection: React.FC = () => {
   const [underutilized, setUnderutilized] = useState<number>(60);
   const [overloaded, setOverloaded] = useState<number>(100);
   const [timezone, setTimezone] = useState<string>('Asia/Jakarta');
+  const [teamsWebhookUrl, setTeamsWebhookUrl] = useState<string>('');
+  const [testStatus, setTestStatus] = useState<string | null>(null);
   const [settingsMsg, setSettingsMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -41,6 +44,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
       setUnderutilized(settings.underutilizedThresholdPct);
       setOverloaded(settings.overloadedThresholdPct);
       setTimezone(settings.workTimezone);
+      setTeamsWebhookUrl(settings.teamsWebhookUrl || '');
     }
   }, [settings]);
 
@@ -59,6 +63,24 @@ export const ThresholdsAndImportSection: React.FC = () => {
     },
   });
 
+  const testWebhookMutation = useMutation({
+    mutationFn: (webhookUrl: string) =>
+      apiClient.post<{ success: boolean; message: string }>(
+        '/api/v1/notifications/test-teams-webhook',
+        { webhookUrl }
+      ),
+    onSuccess: (data) => {
+      setTestStatus(
+        data.success
+          ? t('settings.teams.testSuccess', 'Berhasil mengirim kartu uji coba ke Microsoft Teams!')
+          : t('settings.teams.testFailed', 'Gagal mengirim webhook. Periksa konfigurasi URL.')
+      );
+    },
+    onError: () => {
+      setTestStatus(t('settings.teams.testFailed', 'Gagal menghubungi webhook Teams.'));
+    },
+  });
+
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     setSettingsMsg(null);
@@ -73,7 +95,13 @@ export const ThresholdsAndImportSection: React.FC = () => {
       underutilizedThresholdPct: Number(underutilized),
       overloadedThresholdPct: Number(overloaded),
       workTimezone: timezone,
+      teamsWebhookUrl: teamsWebhookUrl.trim() || null,
     });
+  };
+
+  const handleTestWebhook = () => {
+    setTestStatus(null);
+    testWebhookMutation.mutate(teamsWebhookUrl.trim());
   };
 
   // --- CSV Onboarding Section ---
@@ -100,13 +128,12 @@ export const ThresholdsAndImportSection: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['allocations'] });
     },
     onError: (err: any) => {
-      setImportResult(null);
-      const detail = err?.response?.data?.detail || err?.message || t('settings.system.importError');
-      setImportError(detail);
+      const msg = err?.response?.data?.detail || err?.message || t('settings.import.error');
+      setImportError(msg);
     },
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setCsvFileName(file.name);
@@ -193,7 +220,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
                 value={underutilized}
                 onChange={(e) => setUnderutilized(Number(e.target.value))}
                 disabled={!isAdmin || loadingSettings}
-                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
+                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
                 required
               />
             </div>
@@ -210,7 +237,7 @@ export const ThresholdsAndImportSection: React.FC = () => {
                 value={overloaded}
                 onChange={(e) => setOverloaded(Number(e.target.value))}
                 disabled={!isAdmin || loadingSettings}
-                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
+                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
                 required
               />
             </div>
@@ -224,10 +251,48 @@ export const ThresholdsAndImportSection: React.FC = () => {
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
                 disabled={!isAdmin || loadingSettings}
-                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
+                className="w-full text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
                 required
               />
             </div>
+          </div>
+
+          {/* Microsoft Teams Webhook URL Integration */}
+          <div className="pt-2 border-t border-slate-100 space-y-1.5">
+            <label className="block text-[11px] font-medium text-slate-700">
+              {t('settings.teams.webhookUrlLabel', 'Webhook Microsoft Teams (Incoming Webhook URL)')}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={teamsWebhookUrl}
+                onChange={(e) => setTeamsWebhookUrl(e.target.value)}
+                disabled={!isAdmin || loadingSettings}
+                placeholder="https://company.webhook.office.com/webhookb2/..."
+                className="flex-1 text-xs font-mono border border-slate-300 rounded px-2.5 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
+              />
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleTestWebhook}
+                  disabled={testWebhookMutation.isPending}
+                  className="px-3 py-1.5 rounded border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium transition-colors"
+                >
+                  {testWebhookMutation.isPending
+                    ? t('settings.teams.testing', 'Menguji...')
+                    : t('settings.teams.testButton', 'Uji Webhook')}
+                </button>
+              )}
+            </div>
+            {testStatus && (
+              <p className="text-[11px] text-blue-700 font-medium">{testStatus}</p>
+            )}
+            <p className="text-[11px] text-slate-400">
+              {t(
+                'settings.teams.webhookHelp',
+                'Notifikasi peringatan beban lebih (>100%), batas waktu task H-2, dan pengingat timesheet Jumat sore akan dikirimkan ke channel Teams melalui URL ini.'
+              )}
+            </p>
           </div>
 
           {isAdmin && (
@@ -249,66 +314,74 @@ export const ThresholdsAndImportSection: React.FC = () => {
         <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-4">
           <div>
             <h2 className="text-sm font-semibold text-slate-900">
-              {t('settings.system.importTitle')}
+              {t('settings.import.title')}
             </h2>
             <p className="text-xs text-slate-500">
-              {t('settings.system.importSubtitle')}
+              {t('settings.import.subtitle')}
             </p>
           </div>
 
-          <div className="p-2.5 bg-slate-50 border border-slate-200 rounded text-[11px] font-mono text-slate-600 break-all">
-            {t('settings.system.formatHint')}
-          </div>
-
-          {importResult && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded text-xs">
-              {t('settings.system.importSuccess', {
-                count: importResult.importedCount,
-                projects: importResult.projectsCreated,
-                tasks: importResult.tasksCreated,
-              })}
-            </div>
-          )}
-
-          {importError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded text-xs whitespace-pre-wrap">
-              {importError}
-            </div>
-          )}
-
           <form onSubmit={handleProcessImport} className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <label className="cursor-pointer px-3 py-1.5 border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                {t('settings.system.chooseFile')}
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                {t('settings.import.fileInput')}
               </label>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
+              />
               {csvFileName && (
-                <span className="text-xs text-slate-600 font-mono truncate">{csvFileName}</span>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {t('settings.import.loaded')}: <span className="font-mono">{csvFileName}</span>
+                </p>
               )}
             </div>
 
             <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                {t('settings.import.pasteLabel')}
+              </label>
               <textarea
                 rows={5}
                 value={csvContent}
                 onChange={(e) => setCsvContent(e.target.value)}
-                placeholder={t('settings.system.csvPlaceholder')}
-                className="w-full text-xs font-mono border border-slate-300 rounded p-2 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                placeholder="project_code,project_name,task_title,user_email,start_date,end_date,hours_per_day&#10;PRJ-01,Alpha Project,Backend API,budi@toppaload.local,2026-11-02,2026-11-06,6.0"
+                className="w-full text-xs font-mono border border-slate-300 rounded p-2 focus:outline-hidden focus:ring-1 focus:ring-slate-400"
               />
             </div>
+
+            {importError && (
+              <div className="p-2.5 rounded text-xs bg-rose-50 border border-rose-200 text-rose-800">
+                {importError}
+              </div>
+            )}
+
+            {importResult && (
+              <div className="p-2.5 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-800 space-y-1">
+                <p className="font-semibold">{t('settings.import.success')}</p>
+                <ul className="list-disc list-inside text-[11px]">
+                  <li>
+                    {t('settings.import.allocationsImported')}: {importResult.importedCount}
+                  </li>
+                  <li>
+                    {t('settings.import.projectsCreated')}: {importResult.projectsCreated}
+                  </li>
+                  <li>
+                    {t('settings.import.tasksCreated')}: {importResult.tasksCreated}
+                  </li>
+                </ul>
+              </div>
+            )}
 
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={!csvContent.trim() || importMutation.isPending}
-                className="px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors cursor-pointer"
               >
-                {importMutation.isPending ? t('common.loading') : t('settings.system.processImport')}
+                {importMutation.isPending ? t('settings.import.processing') : t('settings.import.processButton')}
               </button>
             </div>
           </form>
@@ -317,4 +390,3 @@ export const ThresholdsAndImportSection: React.FC = () => {
     </div>
   );
 };
-

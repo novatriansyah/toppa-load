@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +23,16 @@ class NotificationController {
 
     private final NotificationRepository notificationRepository;
     private final UserDirectory userDirectory;
+    private final TeamsWebhookDispatcher teamsWebhookDispatcher;
 
-    NotificationController(NotificationRepository notificationRepository, UserDirectory userDirectory) {
+    NotificationController(
+            NotificationRepository notificationRepository,
+            UserDirectory userDirectory,
+            TeamsWebhookDispatcher teamsWebhookDispatcher
+    ) {
         this.notificationRepository = notificationRepository;
         this.userDirectory = userDirectory;
+        this.teamsWebhookDispatcher = teamsWebhookDispatcher;
     }
 
     public record NotificationItemDto(
@@ -80,5 +87,11 @@ class NotificationController {
         int updated = notificationRepository.markAllAsRead(actor.userId());
         return ResponseEntity.ok(Map.of("markedCount", updated));
     }
-}
 
+    @PostMapping("/test-teams-webhook")
+    public Map<String, Object> testTeamsWebhook(@RequestBody(required = false) Map<String, String> request) {
+        String webhookUrl = request != null ? request.get("webhookUrl") : null;
+        boolean sent = teamsWebhookDispatcher.sendTestCard(webhookUrl);
+        return Map.of("success", sent, "message", sent ? "Berhasil mengirim uji coba ke Microsoft Teams" : "Gagal mengirim webhook");
+    }
+}

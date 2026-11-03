@@ -21,6 +21,7 @@ public final class TestDatabaseCleaner {
         jdbc.sql("DELETE FROM holidays").update();
         jdbc.sql("DELETE FROM tasks").update();
         jdbc.sql("DELETE FROM projects").update();
+        jdbc.sql("UPDATE system_settings SET updated_by = NULL").update();
         jdbc.sql("DELETE FROM users WHERE email NOT IN ('admin@toppaload.local')").update();
     }
 }

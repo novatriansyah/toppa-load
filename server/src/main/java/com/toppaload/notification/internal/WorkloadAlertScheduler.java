@@ -6,6 +6,7 @@ import com.toppaload.capacity.HeatmapResponse;
 import com.toppaload.capacity.UtilizationStatus;
 import com.toppaload.notification.NotificationPublisher;
 import com.toppaload.notification.NotificationType;
+import com.toppaload.notification.TeamsNotificationGateway;
 import com.toppaload.shared.WibClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +26,20 @@ public class WorkloadAlertScheduler {
 
     private final CapacityQueryService capacityQueryService;
     private final NotificationPublisher notificationPublisher;
+    private final TeamsNotificationGateway teamsNotificationGateway;
     private final WibClock wibClock;
     private final JdbcClient jdbc;
 
     public WorkloadAlertScheduler(
             CapacityQueryService capacityQueryService,
             NotificationPublisher notificationPublisher,
+            TeamsNotificationGateway teamsNotificationGateway,
             WibClock wibClock,
             JdbcClient jdbc
     ) {
         this.capacityQueryService = capacityQueryService;
         this.notificationPublisher = notificationPublisher;
+        this.teamsNotificationGateway = teamsNotificationGateway;
         this.wibClock = wibClock;
         this.jdbc = jdbc;
     }
@@ -45,6 +49,23 @@ public class WorkloadAlertScheduler {
         log.info("Running daily notification checks (H-2 due tasks and weekly overload alerts)...");
         scanDueSoonTasks();
         scanOverloadedUsers();
+    }
+
+    @Scheduled(cron = "0 0 16 * * FRI", zone = "Asia/Jakarta")
+    public void sendFridayTimesheetReminders() {
+        log.info("Sending Friday afternoon timesheet reminders to Microsoft Teams...");
+        LocalDate today = wibClock.todayWib();
+        LocalDate monday = today.minusDays(today.getDayOfWeek().getValue() - 1);
+
+        teamsNotificationGateway.sendAdaptiveCard(
+                "Pengingat Timesheet Mingguan (Jumat Sore)",
+                "Selamat sore rekan-rekan! Harap luangkan waktu untuk melengkapi dan melakukan Submit pada timesheet kerja mingguan Anda sebelum akhir jam kerja.",
+                Map.of(
+                        "Periode Minggu", monday.toString(),
+                        "Batas Submit", today + " 17:00 WIB",
+                        "Menu", "Timesheet Mingguan (/timesheet)"
+                )
+        );
     }
 
     public void scanDueSoonTasks() {
@@ -114,16 +135,29 @@ public class WorkloadAlertScheduler {
                             "netCapacityHours", cell.netCapacityHours()
                     );
 
-                    notificationPublisher.publishIfAbsent(
+                    boolean published = notificationPublisher.publishIfAbsent(
                             row.userId(),
                             NotificationType.OVERLOAD_WARNING,
                             title,
                             payload,
                             dedupKey
                     );
+
+                    if (published) {
+                        teamsNotificationGateway.sendAdaptiveCard(
+                                "Peringatan Beban Lebih: " + row.fullName(),
+                                "Anggota tim memiliki beban kerja melebihi kapasitas (" + cell.utilizationPct() + "%). Harap seimbangkan kembali alokasi proyek.",
+                                Map.of(
+                                        "Anggota Tim", row.fullName(),
+                                        "Utilisasi", cell.utilizationPct() + "%",
+                                        "Jam Alokasi", cell.confirmedHours() + " jam",
+                                        "Kapasitas Bersih", cell.netCapacityHours() + " jam",
+                                        "Minggu", monday + " s/d " + sunday
+                                )
+                        );
+                    }
                 }
             }
         }
     }
 }
-
