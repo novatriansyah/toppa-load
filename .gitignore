@@ -71,6 +71,8 @@ tmp/
 temp/
 logs/
 *.log
+cloudflared.exe
+*.exe
 
 # Superpowers execution scratch
 .superpowers/
